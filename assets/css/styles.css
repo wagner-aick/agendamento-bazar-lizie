@@ -218,6 +218,19 @@ svg {
   opacity: 1;
 }
 
+/* O preenchimento automático do Chrome pinta só o <input>, deixando uma faixa
+   branca nas bordas do campo. Neutralizamos o azul e mantemos o visual. */
+.campo__controle input:-webkit-autofill,
+.campo__controle input:-webkit-autofill:hover,
+.campo__controle input:-webkit-autofill:focus,
+.campo__controle input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--texto-medio);
+  caret-color: var(--texto-medio);
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  box-shadow: 0 0 0 1000px #ffffff inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
 .campo__controle--prefixo {
   gap: 6px;
 }
