@@ -66,8 +66,8 @@
     return /\d/.test(caractere) ? 1 : 0;
   }
 
-  function contarLetra(caractere) {
-    return /[A-Za-zÀ-ÖØ-öø-ÿ]/.test(caractere) ? 1 : 0;
+  function contarCaractere() {
+    return 1;
   }
 
   /* ------------------------------------------------------------- formatação */
@@ -281,7 +281,7 @@
 
   aplicarMascara($("#cpf"), formatarCpf, contarDigito);
   aplicarMascara($("#celular"), formatarCelular, contarDigito);
-  aplicarMascara($("#nome"), formatarNome, contarLetra);
+  aplicarMascara($("#nome"), formatarNome, contarCaractere);
 
   $("#email").addEventListener("input", function (evento) {
     var input = evento.target;
@@ -772,11 +772,11 @@
     cartao.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  /* ------------------------------------------------------ calendário (.ics) */
+  /* ------------------------------------------------------------ calendário */
 
-  function gerarIcs() {
+  function montarIcs() {
     var agendamento = state.agendamento;
-    if (!agendamento) return;
+    if (!agendamento) return "";
     var evento = state.evento || {};
     var data = (evento.data || "2026-12-01").replace(/-/g, "");
     var hora = String(agendamento.horario || "09:00").replace(":", "");
@@ -808,11 +808,22 @@
       "END:VCALENDAR"
     ];
 
-    var blob = new Blob([linhas.join("\r\n")], { type: "text/calendar;charset=utf-8" });
+    return linhas.join("\r\n");
+  }
+
+  function nomeArquivoIcs() {
+    var agendamento = state.agendamento;
+    return "bazar-lizie-" + (agendamento && agendamento.horario ? agendamento.horario.replace(":", "") : "agendamento") + ".ics";
+  }
+
+  function baixarIcs() {
+    var texto = montarIcs();
+    if (!texto) return;
+    var blob = new Blob([texto], { type: "text/calendar;charset=utf-8" });
     var url = URL.createObjectURL(blob);
     var link = document.createElement("a");
     link.href = url;
-    link.download = "bazar-lizie-" + agendamento.horario.replace(":", "") + ".ics";
+    link.download = nomeArquivoIcs();
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -821,7 +832,113 @@
     }, 2000);
   }
 
-  $("#baixar-calendario").addEventListener("click", gerarIcs);
+  function dadosCalendario() {
+    var agendamento = state.agendamento;
+    if (!agendamento) return null;
+    var evento = state.evento || {};
+    var data = evento.data || "2026-12-01";
+    var partes = String(agendamento.horario || "09:00").split(":");
+    var hh = String(Number(partes[0])).padStart(2, "0");
+    var mm = partes[1] || "00";
+    var proxima = String(Number(partes[0]) + 1).padStart(2, "0");
+    var compacta = data.replace(/-/g, "");
+    return {
+      titulo: "Bazar de Fábrica Lizie — " + agendamento.horario,
+      local: "Rua Capt. Felix, 34 - Benfica, Rio de Janeiro - RJ",
+      detalhes: "Agendamento confirmado. Protocolo " + protocoloCurto(agendamento.protocolo) + ". Apresente seu CPF na entrada.",
+      googleInicio: compacta + "T" + hh + mm + "00",
+      googleFim: compacta + "T" + proxima + mm + "00",
+      outlookInicio: data + "T" + hh + ":" + mm + ":00",
+      outlookFim: data + "T" + proxima + ":" + mm + ":00"
+    };
+  }
+
+  function linkGoogle(dados) {
+    var params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: dados.titulo,
+      dates: dados.googleInicio + "/" + dados.googleFim,
+      ctz: "America/Sao_Paulo",
+      details: dados.detalhes,
+      location: dados.local
+    });
+    return "https://calendar.google.com/calendar/render?" + params.toString();
+  }
+
+  function linkOutlook(dados) {
+    var params = new URLSearchParams({
+      path: "/calendar/action/compose",
+      rru: "addevent",
+      subject: dados.titulo,
+      startdt: dados.outlookInicio,
+      enddt: dados.outlookFim,
+      body: dados.detalhes,
+      location: dados.local
+    });
+    return "https://outlook.live.com/calendar/0/deeplink/compose?" + params.toString();
+  }
+
+  var menuCalendario = $("#menu-calendario");
+  var botaoCalendario = $("#baixar-calendario");
+
+  function abrirMenuCalendario() {
+    var dados = dadosCalendario();
+    if (!dados) return;
+    $("#cal-google").href = linkGoogle(dados);
+    $("#cal-outlook").href = linkOutlook(dados);
+    menuCalendario.hidden = false;
+    botaoCalendario.setAttribute("aria-expanded", "true");
+  }
+
+  function fecharMenuCalendario() {
+    if (menuCalendario.hidden) return;
+    menuCalendario.hidden = true;
+    botaoCalendario.setAttribute("aria-expanded", "false");
+  }
+
+  botaoCalendario.addEventListener("click", async function () {
+    var texto = montarIcs();
+    if (!texto) return;
+
+    // No celular, abre a folha de compartilhamento do sistema: o usuário
+    // escolhe o app de calendário que já usa.
+    var movel = window.matchMedia("(pointer: coarse)").matches;
+    if (movel && navigator.canShare && typeof File !== "undefined") {
+      var arquivo = new File([texto], nomeArquivoIcs(), { type: "text/calendar" });
+      if (navigator.canShare({ files: [arquivo] })) {
+        try {
+          await navigator.share({
+            files: [arquivo],
+            title: "Bazar de Fábrica Lizie",
+            text: "Agendamento no Bazar de Fábrica Lizie"
+          });
+          return;
+        } catch (erro) {
+          if (erro && erro.name === "AbortError") return;
+        }
+      }
+    }
+
+    if (menuCalendario.hidden) abrirMenuCalendario();
+    else fecharMenuCalendario();
+  });
+
+  $("#cal-ics").addEventListener("click", function () {
+    baixarIcs();
+    fecharMenuCalendario();
+  });
+
+  ["#cal-google", "#cal-outlook"].forEach(function (seletor) {
+    $(seletor).addEventListener("click", fecharMenuCalendario);
+  });
+
+  document.addEventListener("click", function (evento) {
+    if (!evento.target.closest("#calendario")) fecharMenuCalendario();
+  });
+
+  document.addEventListener("keydown", function (evento) {
+    if (evento.key === "Escape") fecharMenuCalendario();
+  });
 
   /* ------------------------------------------------------------- ciclo de vida */
 

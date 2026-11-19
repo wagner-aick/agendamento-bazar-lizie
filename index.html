@@ -184,7 +184,17 @@
       </p>
 
       <div class="sucesso__acoes">
-        <button type="button" class="botao-secundario" id="baixar-calendario">Adicionar ao calendário</button>
+        <div class="calendario" id="calendario">
+          <button type="button" class="botao-secundario" id="baixar-calendario"
+                  aria-haspopup="menu" aria-expanded="false" aria-controls="menu-calendario">
+            Adicionar ao calendário
+          </button>
+          <div class="calendario__menu" id="menu-calendario" role="menu" aria-label="Escolha o calendário" hidden>
+            <a role="menuitem" id="cal-google" href="#" target="_blank" rel="noopener noreferrer">Google Agenda</a>
+            <a role="menuitem" id="cal-outlook" href="#" target="_blank" rel="noopener noreferrer">Outlook</a>
+            <button role="menuitem" id="cal-ics" type="button">Apple Calendário / .ics</button>
+          </div>
+        </div>
         <button type="button" class="botao-secundario botao-secundario--discreto" id="reiniciar">Fazer outro agendamento</button>
       </div>
     </section>
