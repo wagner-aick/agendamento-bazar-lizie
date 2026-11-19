@@ -104,12 +104,19 @@ Se o projeto Supabase mudar, troque essa linha e o `connect-src` da CSP em
 - URL: https://wagner-aick.github.io/agendamento-bazar-lizie/admin.html
 - Login por senha; a senha é conferida no banco com bcrypt.
 - A senha fica apenas no `sessionStorage` (por aba, some ao fechar o navegador).
-- Limite de 10 tentativas por IP a cada 10 minutos.
+- Limite de 10 tentativas **erradas** por IP a cada 10 minutos; acertar a senha
+  zera o contador.
 - A página tem `noindex, nofollow` e não mostra nenhum dado sem a senha.
 
-O painel mostra resumo, ocupação por horário, busca por nome/CPF/e-mail/celular,
-filtro por horário e exportação CSV. No celular a lista vira cartões; no desktop,
-tabela.
+O painel é uma lista enxuta, pensada para a portaria:
+
+- busca por nome, CPF ou telefone;
+- chips por horário com a contagem;
+- pessoas agrupadas por horário, com nome, CPF mascarado e telefone clicável;
+- atualização automática a cada 15 segundos (e ao voltar para a aba);
+- exportação CSV discreta no topo.
+
+Sem KPIs, gráficos ou métricas.
 
 #### Definir ou trocar a senha
 
@@ -152,6 +159,12 @@ order by h.hora, i.nome;
 Para exportar em CSV, use o botão **Export** do SQL Editor.
 
 ### Fechar as inscrições
+
+As inscrições param automaticamente à 00:00 do dia do evento
+(`America/Sao_Paulo`). A página pública passa a mostrar **“Agendamento
+encerrado”** e a API recusa novas inscrições com `INSCRICOES_ENCERRADAS`.
+
+Para encerrar antes:
 
 ```sql
 update public.bazar_config set aberto = false where id = 1;

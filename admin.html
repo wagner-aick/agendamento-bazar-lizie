@@ -13,8 +13,8 @@
 
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/admin.css?v=2">
-  <script src="assets/js/admin.js?v=2" defer></script>
+  <link rel="stylesheet" href="assets/css/admin.css?v=3">
+  <script src="assets/js/admin.js?v=3" defer></script>
 </head>
 <body class="sem-rolagem">
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -39,19 +39,17 @@
       </div>
 
       <div class="topo__acoes" id="acoes-topo" hidden>
-        <button type="button" class="botao-icone" id="atualizar" title="Atualizar dados" aria-label="Atualizar dados">
+        <button type="button" class="botao-icone" id="atualizar" title="Atualizar" aria-label="Atualizar">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M20 11a8 8 0 1 0-2.3 6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             <path d="M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>Atualizar</span>
         </button>
-        <button type="button" class="botao-icone botao-icone--sair" id="sair" title="Sair do painel" aria-label="Sair do painel">
+        <button type="button" class="botao-icone botao-icone--sair" id="sair" title="Sair" aria-label="Sair">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
             <path d="M10 8l4 4-4 4M14 12H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span>Sair</span>
         </button>
       </div>
     </div>
@@ -70,7 +68,7 @@
         </div>
 
         <h1 id="titulo-login">Acesso da equipe</h1>
-        <p class="login__texto">Digite a senha do painel para consultar os agendamentos.</p>
+        <p class="login__texto">Digite a senha para ver os agendamentos.</p>
 
         <div class="campo">
           <label class="campo__rotulo" for="senha">Senha</label>
@@ -111,88 +109,35 @@
       <div class="painel__topo">
         <div>
           <h1 id="titulo-painel">Agendamentos</h1>
-          <p class="painel__subtitulo" id="subtitulo">Carregando dados do bazar…</p>
+          <p class="painel__subtitulo" id="subtitulo">Carregando…</p>
         </div>
+        <button type="button" class="botao-icone botao-icone--borda" id="exportar"
+                title="Baixar CSV" aria-label="Baixar CSV">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="resumo" id="resumo" aria-label="Resumo do bazar"></div>
+      <div class="busca">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+          <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        <label class="visualmente-oculto" for="busca">Buscar por nome, CPF ou telefone</label>
+        <input id="busca" type="search" placeholder="Nome, CPF ou telefone"
+               autocomplete="off" spellcheck="false">
+      </div>
 
-      <section class="bloco" aria-labelledby="titulo-horarios">
-        <div class="bloco__topo">
-          <h2 id="titulo-horarios">Ocupação por horário</h2>
-          <span class="bloco__nota" id="nota-horarios"></span>
-        </div>
-        <div class="horarios" id="horarios"></div>
-      </section>
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por horário"></div>
 
-      <section class="bloco" aria-labelledby="titulo-inscricoes">
-        <div class="bloco__topo">
-          <h2 id="titulo-inscricoes">Inscrições</h2>
-          <span class="bloco__nota" id="contagem"></span>
-        </div>
+      <div class="grupos" id="grupos"></div>
 
-        <div class="filtros">
-          <div class="busca">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
-              <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <label class="visualmente-oculto" for="busca">Buscar por nome, CPF, e-mail ou celular</label>
-            <input id="busca" type="search" placeholder="Buscar nome, CPF, e-mail…"
-                   autocomplete="off" spellcheck="false">
-          </div>
-
-          <div class="filtro">
-            <label class="visualmente-oculto" for="filtro-horario">Filtrar por horário</label>
-            <select id="filtro-horario">
-              <option value="">Todos os horários</option>
-            </select>
-            <svg viewBox="0 0 16 10" aria-hidden="true" focusable="false">
-              <path d="M1.5 1.5 8 8l6.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-
-          <button type="button" class="botao-secundario" id="exportar">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            Exportar CSV
-          </button>
-        </div>
-
-        <div class="vazio" id="vazio" hidden>
-          <div class="vazio__icone" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
-              <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <h3 id="vazio-titulo">Nenhuma inscrição encontrada</h3>
-          <p id="vazio-texto">Ajuste a busca ou o filtro de horário.</p>
-          <button type="button" class="botao-secundario" id="limpar-filtros" hidden>Limpar filtros</button>
-        </div>
-
-        <div class="tabela-wrap" id="tabela-wrap" hidden>
-          <table class="tabela">
-            <caption class="visualmente-oculto">Inscrições do Bazar de Fábrica Lizie</caption>
-            <thead>
-              <tr>
-                <th scope="col">Horário</th>
-                <th scope="col">Nome</th>
-                <th scope="col">CPF</th>
-                <th scope="col">Contato</th>
-                <th scope="col">Como soube</th>
-                <th scope="col">Inscrito em</th>
-                <th scope="col">Protocolo</th>
-              </tr>
-            </thead>
-            <tbody id="corpo-tabela"></tbody>
-          </table>
-        </div>
-
-        <ul class="cartoes" id="cartoes" hidden aria-label="Lista de inscrições"></ul>
-      </section>
+      <div class="vazio" id="vazio" hidden>
+        <p id="vazio-titulo">Nenhum agendamento.</p>
+        <button type="button" class="botao-secundario" id="limpar-filtros" hidden>Limpar busca</button>
+      </div>
     </section>
   </main>
 

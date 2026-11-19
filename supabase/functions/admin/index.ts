@@ -131,12 +131,16 @@ Deno.serve(async (req) => {
         return falha("SENHA_INVALIDA");
       }
 
-      const dados = await rpc("bazar_admin_dados", {
+      const resultado = await rpc("bazar_admin_dados", {
         p_senha: senha,
         p_ip_hash: await hashIp(req),
-      });
+      }) as { ok?: boolean; erro?: string; dados?: unknown };
 
-      return json({ ok: true, dados });
+      if (!resultado || resultado.ok !== true) {
+        return falha(resultado?.erro ?? "ERRO_INTERNO");
+      }
+
+      return json({ ok: true, dados: resultado.dados });
     }
 
     return json({ ok: false, erro: "ROTA_NAO_ENCONTRADA" }, 404);
