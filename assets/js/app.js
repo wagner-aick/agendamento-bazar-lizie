@@ -331,19 +331,24 @@
       });
     }
 
+    function estaAberto() {
+      return raiz.getAttribute("data-aberto") === "true";
+    }
+
     function abrir() {
-      if (botao.disabled) return;
-      lista.hidden = false;
+      if (botao.disabled || estaAberto()) return;
+      raiz.setAttribute("data-aberto", "true");
+      lista.setAttribute("aria-hidden", "false");
       botao.setAttribute("aria-expanded", "true");
       var selecionado = lista.querySelector('[aria-selected="true"]:not([aria-disabled="true"])');
       var alvo = selecionado || habilitados()[0];
       definirAtivo(alvo);
-      if (alvo) alvo.scrollIntoView({ block: "nearest" });
     }
 
     function fechar(devolverFoco) {
-      if (lista.hidden) return;
-      lista.hidden = true;
+      if (!estaAberto()) return;
+      raiz.removeAttribute("data-aberto");
+      lista.setAttribute("aria-hidden", "true");
       botao.setAttribute("aria-expanded", "false");
       itens().forEach(function (item) {
         item.removeAttribute("data-ativo");
@@ -391,18 +396,18 @@
     }
 
     botao.addEventListener("click", function () {
-      if (lista.hidden) abrir();
+      if (!estaAberto()) abrir();
       else fechar(false);
     });
 
     botao.addEventListener("keydown", function (evento) {
       if (evento.key === "ArrowDown" || evento.key === "ArrowUp") {
         evento.preventDefault();
-        if (lista.hidden) abrir();
+        if (!estaAberto()) abrir();
         else mover(evento.key === "ArrowDown" ? 1 : -1);
       } else if (evento.key === "Enter" || evento.key === " ") {
         evento.preventDefault();
-        if (lista.hidden) abrir();
+        if (!estaAberto()) abrir();
         else {
           var ativo = lista.querySelector('[data-ativo="true"]');
           escolher(ativo);
@@ -410,7 +415,7 @@
       } else if (evento.key === "Escape") {
         fechar(true);
       } else if (evento.key === "Home" || evento.key === "End") {
-        if (lista.hidden) return;
+        if (!estaAberto()) return;
         evento.preventDefault();
         var disponiveis = habilitados();
         definirAtivo(evento.key === "Home" ? disponiveis[0] : disponiveis[disponiveis.length - 1]);
@@ -528,8 +533,7 @@
     // A capa é uma arte estática; nada a sincronizar no DOM.
   }
 
-  async function carregarHorarios(forcar) {
-    var agora = Date.now();
+  async function carregarHorarios(forcar) {    var agora = Date.now();
     if (!forcar && agora - state.ultimaCarga < 15000) return;
     try {
       var resposta = await fetch(API_BASE + "/horarios", { headers: { Accept: "application/json" } });
@@ -693,7 +697,7 @@
       return;
     }
 
-    mostrarAviso(mensagem, status === 429 ? "erro" : "erro");
+    mostrarAviso(mensagem, "erro");
   }
 
   /* --------------------------------------------------------------- sucesso */

@@ -360,10 +360,10 @@ revoke all on sequence public.bazar_horarios_id_seq from anon, authenticated;
 revoke all on sequence public.bazar_tentativas_id_seq from anon, authenticated;
 
 revoke all on function public.bazar_cpf_valido(text) from public, anon, authenticated;
-revoke all on function public.bazar_horarios_disponiveis() from public, authenticated;
+revoke all on function public.bazar_horarios_disponiveis() from public, anon, authenticated;
 revoke all on function public.bazar_agendar(text, text, text, text, smallint, text, boolean, boolean, text) from public, anon, authenticated;
 
-grant execute on function public.bazar_horarios_disponiveis() to anon, service_role;
+grant execute on function public.bazar_horarios_disponiveis() to service_role;
 grant execute on function public.bazar_agendar(text, text, text, text, smallint, text, boolean, boolean, text) to service_role;
 
 comment on table public.bazar_inscricoes is
