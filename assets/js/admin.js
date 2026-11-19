@@ -88,6 +88,7 @@
 
   var telaLogin = $("#tela-login");
   var telaPainel = $("#tela-painel");
+  var topo = $("#topo");
   var formLogin = $("#form-login");
   var campoSenha = $("#senha");
   var controleSenha = $("#controle-senha");
@@ -222,6 +223,8 @@
   }
 
   function mostrarLogin() {
+    document.body.classList.add("sem-rolagem");
+    topo.classList.add("topo--login");
     telaPainel.hidden = true;
     telaLogin.hidden = false;
     acoesTopo.hidden = true;
@@ -231,6 +234,8 @@
   }
 
   function mostrarPainel() {
+    document.body.classList.remove("sem-rolagem");
+    topo.classList.remove("topo--login");
     telaLogin.hidden = true;
     telaPainel.hidden = false;
     acoesTopo.hidden = false;

@@ -141,15 +141,22 @@ a {
 .topo__marca {
   display: inline-flex;
   flex: none;
-  padding: 6px 4px;
+  padding: 0;
   color: var(--tinta);
   border-radius: 8px;
 }
 
 .topo__marca svg {
-  width: 52px;
+  width: 55.5px;
   height: auto;
   fill: currentColor;
+}
+
+.topo__divisor {
+  flex: none;
+  width: 1px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.28);
 }
 
 .topo__titulo {
@@ -162,14 +169,29 @@ a {
 .topo__titulo strong {
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
 .topo__titulo span {
-  font-size: 11px;
-  color: var(--suave);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.5);
   white-space: nowrap;
+}
+
+/* No login o topo segue o Portal de Pagamento: transparente, direto no fundo. */
+.topo--login {
+  position: relative;
+  background: none;
+  border-bottom: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.topo--login .topo__interno {
+  min-height: 48px;
+  padding: 0 16px;
 }
 
 .topo__acoes {
@@ -215,6 +237,35 @@ a {
 }
 
 /* ------------------------------------------------------------------ login */
+/* ------------------------------------------------------------------ login */
+body.sem-rolagem {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body.sem-rolagem main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow-y: auto;
+}
+
+body.sem-rolagem .login {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 12px 0;
+}
+
+body.sem-rolagem .rodape {
+  display: none;
+}
+
 main {
   width: 100%;
   max-width: 1240px;
