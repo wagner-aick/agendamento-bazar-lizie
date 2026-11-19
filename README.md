@@ -4,6 +4,7 @@ Página pública de agendamento do bazar, com cadastro único por CPF, 30 vagas 
 horário e gravação segura no Supabase.
 
 - **Site publicado:** https://wagner-aick.github.io/agendamento-bazar-lizie/
+- **Painel da equipe:** https://wagner-aick.github.io/agendamento-bazar-lizie/admin.html
 - **Repositório:** https://github.com/wagner-aick/agendamento-bazar-lizie
 - **Site:** HTML, CSS e JavaScript puros (sem build, sem dependências de CDN).
 - **Banco:** Supabase (Postgres) com RLS e funções `SECURITY DEFINER`.
@@ -14,13 +15,17 @@ horário e gravação segura no Supabase.
 
 ```
 index.html                      página de agendamento
-assets/css/styles.css           estilos
+admin.html                      painel da equipe (senha)
+assets/css/styles.css           estilos do agendamento
+assets/css/admin.css            estilos do painel
 assets/js/app.js                máscaras, validação e integração com a API
+assets/js/admin.js              login, filtros e exportação do painel
 assets/fonts/                   Inter e Montagu Slab (self-hosted)
 assets/img/hero.jpg             arte estática da capa
 assets/img/fundo.png            fundo do site
 supabase/migrations/            schema, funções e políticas
-supabase/functions/bazar/       Edge Function que valida e grava
+supabase/functions/bazar/       Edge Function do agendamento
+supabase/functions/admin/       Edge Function do painel
 .github/workflows/pages.yml     deploy do GitHub Pages
 ```
 
@@ -93,6 +98,37 @@ Se o projeto Supabase mudar, troque essa linha e o `connect-src` da CSP em
 `index.html`.
 
 ## Operação do bazar
+
+### Painel da equipe
+
+- URL: https://wagner-aick.github.io/agendamento-bazar-lizie/admin.html
+- Login por senha; a senha é conferida no banco com bcrypt.
+- A senha fica apenas no `sessionStorage` (por aba, some ao fechar o navegador).
+- Limite de 10 tentativas por IP a cada 10 minutos.
+- A página tem `noindex, nofollow` e não mostra nenhum dado sem a senha.
+
+O painel mostra resumo, ocupação por horário, busca por nome/CPF/e-mail/celular,
+filtro por horário e exportação CSV. No celular a lista vira cartões; no desktop,
+tabela.
+
+#### Definir ou trocar a senha
+
+```sql
+insert into public.bazar_admin (id, senha_hash)
+values (1, extensions.crypt('NOVA_SENHA', extensions.gen_salt('bf', 12)))
+on conflict (id) do update
+  set senha_hash = excluded.senha_hash,
+      atualizado_em = now();
+```
+
+#### Edge Function do painel
+
+```bash
+supabase functions deploy admin --no-verify-jwt
+```
+
+Rota: `POST /admin/dados` com `{ "senha": "..." }`. A função usa `service_role`
+apenas no servidor e chama a RPC `bazar_admin_dados`.
 
 ### Ver inscrições
 

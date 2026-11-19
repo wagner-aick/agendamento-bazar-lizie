@@ -629,6 +629,18 @@ svg {
   fill: #000;
 }
 
+.rodape__equipe {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.35);
+  text-decoration: none;
+}
+
+.rodape__equipe:hover {
+  color: var(--texto-medio);
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------------------------ sucesso */
 .sucesso {
   display: flex;

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://molespouzrulyubcfxph.supabase.co; form-action 'none'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  <title>Painel do Bazar — Lizie</title>
+  <meta name="description" content="Painel interno da equipe para consultar os agendamentos do Bazar de Fábrica Lizie.">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <script src="assets/js/admin.js" defer></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="topo__interno">
+      <a class="topo__marca" href="index.html" aria-label="Voltar para a página de agendamento">
+        <svg viewBox="0 0 55.5 22.5" role="img" aria-hidden="true" focusable="false">
+          <path d="M2.01232 20.5245H6.41812V22.25H0.25V0.25H2.01232V20.5245Z"/>
+          <path d="M15.8906 22.25H14.1283V0.25H15.8906V22.25Z"/>
+          <path d="M25.8191 20.5245H31.9481V22.25H23.3934L30.1217 1.97549H24.6785V0.25H32.5472L25.8191 20.5245Z"/>
+          <path d="M41.8123 22.25H40.05V0.25H41.8123V22.25Z"/>
+          <path d="M55.25 1.97549H51.2848V10.3873H53.708V12.1127H51.2848V20.5245H55.25V22.25H49.5225V0.25H55.25V1.97549Z"/>
+        </svg>
+      </a>
+
+      <div class="topo__titulo">
+        <strong>Painel do Bazar</strong>
+        <span>Bazar de Fábrica Lizie</span>
+      </div>
+
+      <div class="topo__acoes" id="acoes-topo" hidden>
+        <button type="button" class="botao-icone" id="atualizar" title="Atualizar dados">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M20 11a8 8 0 1 0-2.3 6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Atualizar</span>
+        </button>
+        <button type="button" class="botao-icone botao-icone--sair" id="sair" title="Sair do painel">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M10 8l4 4-4 4M14 12H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Sair</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- ============================= LOGIN ============================= -->
+    <section class="login" id="tela-login" aria-labelledby="titulo-login">
+      <form class="login__cartao" id="form-login" novalidate>
+        <div class="login__icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <rect x="4" y="10" width="16" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M8 10V7.5a4 4 0 0 1 8 0V10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="12" cy="15.5" r="1.4" fill="currentColor"/>
+          </svg>
+        </div>
+
+        <h1 id="titulo-login">Acesso da equipe</h1>
+        <p class="login__texto">Digite a senha do painel para consultar os agendamentos.</p>
+
+        <div class="campo">
+          <label class="campo__rotulo" for="senha">Senha</label>
+          <div class="campo__controle" id="controle-senha">
+            <input id="senha" name="senha" type="password" autocomplete="current-password"
+                   required aria-describedby="erro-login">
+            <button type="button" class="campo__acao" id="mostrar-senha" aria-label="Mostrar senha" aria-pressed="false">
+              <svg class="ico-olho" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12Z" fill="none" stroke="currentColor" stroke-width="1.7"/>
+                <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.7"/>
+              </svg>
+              <svg class="ico-olho-cortado" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden>
+                <path d="M2.5 12S6 5.8 12 5.8c1.7 0 3.2.6 4.5 1.4M21.5 12S18 18.2 12 18.2c-1.7 0-3.2-.6-4.5-1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M4 4l16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <p class="campo__erro" id="erro-login" role="alert" hidden></p>
+        </div>
+
+        <button type="submit" class="botao-primario" id="entrar">
+          <span class="botao-primario__texto">Entrar</span>
+          <span class="botao-primario__carregando" aria-hidden="true">
+            <svg class="giro" viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-opacity=".25"/>
+              <path d="M21 12a9 9 0 0 0-9-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            </svg>
+            Verificando…
+          </span>
+        </button>
+
+        <a class="login__voltar" href="index.html">Voltar para o agendamento</a>
+      </form>
+    </section>
+
+    <!-- ============================= PAINEL ============================= -->
+    <section class="painel" id="tela-painel" hidden aria-labelledby="titulo-painel">
+      <div class="painel__topo">
+        <div>
+          <h1 id="titulo-painel">Agendamentos</h1>
+          <p class="painel__subtitulo" id="subtitulo">Carregando dados do bazar…</p>
+        </div>
+      </div>
+
+      <div class="resumo" id="resumo" aria-label="Resumo do bazar"></div>
+
+      <section class="bloco" aria-labelledby="titulo-horarios">
+        <div class="bloco__topo">
+          <h2 id="titulo-horarios">Ocupação por horário</h2>
+          <span class="bloco__nota" id="nota-horarios"></span>
+        </div>
+        <div class="horarios" id="horarios"></div>
+      </section>
+
+      <section class="bloco" aria-labelledby="titulo-inscricoes">
+        <div class="bloco__topo">
+          <h2 id="titulo-inscricoes">Inscrições</h2>
+          <span class="bloco__nota" id="contagem"></span>
+        </div>
+
+        <div class="filtros">
+          <div class="busca">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <label class="visualmente-oculto" for="busca">Buscar por nome, CPF, e-mail ou celular</label>
+            <input id="busca" type="search" placeholder="Buscar nome, CPF, e-mail…"
+                   autocomplete="off" spellcheck="false">
+          </div>
+
+          <div class="filtro">
+            <label class="visualmente-oculto" for="filtro-horario">Filtrar por horário</label>
+            <select id="filtro-horario">
+              <option value="">Todos os horários</option>
+            </select>
+            <svg viewBox="0 0 16 10" aria-hidden="true" focusable="false">
+              <path d="M1.5 1.5 8 8l6.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <button type="button" class="botao-secundario" id="exportar">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            Exportar CSV
+          </button>
+        </div>
+
+        <div class="esqueleto" id="carregando" hidden aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+
+        <div class="vazio" id="vazio" hidden>
+          <div class="vazio__icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+              <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 id="vazio-titulo">Nenhuma inscrição encontrada</h3>
+          <p id="vazio-texto">Ajuste a busca ou o filtro de horário.</p>
+          <button type="button" class="botao-secundario" id="limpar-filtros" hidden>Limpar filtros</button>
+        </div>
+
+        <div class="tabela-wrap" id="tabela-wrap" hidden>
+          <table class="tabela">
+            <caption class="visualmente-oculto">Inscrições do Bazar de Fábrica Lizie</caption>
+            <thead>
+              <tr>
+                <th scope="col">Horário</th>
+                <th scope="col">Nome</th>
+                <th scope="col">CPF</th>
+                <th scope="col">Contato</th>
+                <th scope="col">Como soube</th>
+                <th scope="col">Inscrito em</th>
+                <th scope="col">Protocolo</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-tabela"></tbody>
+          </table>
+        </div>
+
+        <ul class="cartoes" id="cartoes" hidden aria-label="Lista de inscrições"></ul>
+      </section>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <span>Lizie · Painel interno</span>
+    <a href="index.html">Página de agendamento</a>
+  </footer>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+
+  <noscript>
+    <p class="noscript">Ative o JavaScript para usar o painel.</p>
+  </noscript>
+</body>
+</html>
