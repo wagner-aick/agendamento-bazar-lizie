@@ -380,11 +380,14 @@ svg {
   transform: translateY(0);
   visibility: visible;
   pointer-events: auto;
+  border-color: rgba(13, 13, 13, 0.75);
+  border-top-color: rgba(0, 0, 0, 0.1);
   transition:
     clip-path 0.28s var(--ease),
     opacity 0.18s var(--ease),
     transform 0.28s var(--ease),
-    visibility 0s;
+    visibility 0s,
+    border-color 0.18s var(--ease);
 }
 
 .selecao[data-aberto="true"] .selecao__botao {
