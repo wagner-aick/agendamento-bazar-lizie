@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://molespouzrulyubcfxph.supabase.co; form-action 'none'; base-uri 'none'; object-src 'none'; upgrade-insecure-requests">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  <title>Bazar de Fábrica Lizie — Agendamento</title>
+  <meta name="description" content="Agende o seu horário no Bazar de Fábrica Lizie. 30 vagas por horário, das 09h às 16h.">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/montagu-slab.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body>
+  <div class="fundo" aria-hidden="true">
+    <span class="fundo__brilho fundo__brilho--1"></span>
+    <span class="fundo__brilho fundo__brilho--2"></span>
+    <span class="fundo__brilho fundo__brilho--3"></span>
+  </div>
+
+  <main class="cartao" id="cartao">
+    <!-- ============================= CAPA ============================= -->
+    <section class="capa">
+      <img class="capa__imagem" src="assets/img/hero.jpg" width="2000" height="1138"
+           alt="Bazar de Fábrica Lizie — 01.12, agendamento das 09h às 16h, permanência máxima de 1 hora, 30 vagas por horário. Rua Capt. Felix, 34, Benfica, próximo ao Cadeg.">
+      <h1 class="visualmente-oculto">Bazar de Fábrica Lizie — agendamento</h1>
+    </section>
+
+    <div class="divisor" role="presentation"></div>
+
+    <!-- ============================= FORMULÁRIO ============================= -->
+    <form class="formulario" id="formulario" novalidate autocomplete="on">
+      <div class="grade">
+        <!-- Horário -->
+        <div class="campo" data-campo="horario">
+          <label class="campo__rotulo" id="rotulo-horario" for="horario">Escolha Seu Horário</label>
+          <div class="selecao" id="selecao-horario">
+            <button type="button" class="selecao__botao" id="horario" name="horario"
+                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="rotulo-horario"
+                    aria-describedby="erro-horario">
+              <span class="selecao__valor" data-valor>Carregando…</span>
+              <span class="selecao__dica" data-dica></span>
+              <svg class="selecao__seta" viewBox="0 0 16 10" aria-hidden="true" focusable="false">
+                <path d="M1.5 1.5 8 8l6.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <ul class="selecao__lista" role="listbox" aria-labelledby="rotulo-horario" tabindex="-1" hidden></ul>
+          </div>
+          <p class="campo__erro" id="erro-horario" role="alert" hidden></p>
+        </div>
+
+        <!-- Nome -->
+        <div class="campo" data-campo="nome">
+          <label class="campo__rotulo" for="nome">Nome Completo</label>
+          <div class="campo__controle">
+            <input id="nome" name="nome" type="text" inputmode="text" autocomplete="name"
+                   placeholder="Digite aqui o seu nome…" maxlength="120" aria-describedby="erro-nome">
+          </div>
+          <p class="campo__erro" id="erro-nome" role="alert" hidden></p>
+        </div>
+
+        <!-- E-mail -->
+        <div class="campo" data-campo="email">
+          <label class="campo__rotulo" for="email">E-mail</label>
+          <div class="campo__controle">
+            <input id="email" name="email" type="email" inputmode="email" autocomplete="email"
+                   placeholder="seuemail@gmail.com" maxlength="254" spellcheck="false"
+                   autocapitalize="off" aria-describedby="erro-email">
+          </div>
+          <p class="campo__erro" id="erro-email" role="alert" hidden></p>
+        </div>
+
+        <!-- Celular -->
+        <div class="campo" data-campo="celular">
+          <label class="campo__rotulo" for="celular">Celular</label>
+          <div class="campo__controle campo__controle--prefixo">
+            <span class="campo__prefixo" aria-hidden="true">+55</span>
+            <input id="celular" name="celular" type="tel" inputmode="numeric" autocomplete="tel-national"
+                   placeholder="21 0000-00000" maxlength="16" aria-describedby="erro-celular">
+          </div>
+          <p class="campo__erro" id="erro-celular" role="alert" hidden></p>
+        </div>
+
+        <!-- CPF -->
+        <div class="campo" data-campo="cpf">
+          <label class="campo__rotulo" for="cpf">CPF</label>
+          <div class="campo__controle">
+            <input id="cpf" name="cpf" type="text" inputmode="numeric" autocomplete="off"
+                   placeholder="000.000.000-00" maxlength="14" aria-describedby="erro-cpf">
+          </div>
+          <p class="campo__erro" id="erro-cpf" role="alert" hidden></p>
+        </div>
+
+        <!-- Como soube -->
+        <div class="campo" data-campo="origem">
+          <label class="campo__rotulo" id="rotulo-origem" for="origem">Como Soube do Bazar?</label>
+          <div class="selecao" id="selecao-origem">
+            <button type="button" class="selecao__botao" id="origem" name="origem"
+                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="rotulo-origem"
+                    aria-describedby="erro-origem">
+              <span class="selecao__valor" data-valor>Selecione uma opção</span>
+              <svg class="selecao__seta" viewBox="0 0 16 10" aria-hidden="true" focusable="false">
+                <path d="M1.5 1.5 8 8l6.5-6.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <ul class="selecao__lista" role="listbox" aria-labelledby="rotulo-origem" tabindex="-1" hidden>
+              <li role="option" data-valor="Indicação de Amigos" aria-selected="false">Indicação de Amigos</li>
+              <li role="option" data-valor="Instagram" aria-selected="false">Instagram</li>
+              <li role="option" data-valor="Facebook" aria-selected="false">Facebook</li>
+              <li role="option" data-valor="WhatsApp" aria-selected="false">WhatsApp</li>
+              <li role="option" data-valor="Passando na rua" aria-selected="false">Passando na rua</li>
+              <li role="option" data-valor="Outro" aria-selected="false">Outro</li>
+            </ul>
+          </div>
+          <p class="campo__erro" id="erro-origem" role="alert" hidden></p>
+        </div>
+      </div>
+
+      <!-- Honeypot: invisível para humanos -->
+      <div class="armadilha" aria-hidden="true">
+        <label for="website">Website</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="consentimentos">
+        <label class="marcador">
+          <input type="checkbox" id="novidades" name="novidades">
+          <span class="marcador__caixa" aria-hidden="true">
+            <svg viewBox="0 0 18 14" focusable="false"><path d="M1.5 7.5 6.5 12.5 16.5 1.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="marcador__texto">Gostaria de receber novidades e promoções exclusivas do bazar da LIZIE por e-mail ou telefone. <em>(opcional)</em></span>
+        </label>
+
+        <label class="marcador" data-campo="termos">
+          <input type="checkbox" id="termos" name="termos" aria-describedby="erro-termos">
+          <span class="marcador__caixa" aria-hidden="true">
+            <svg viewBox="0 0 18 14" focusable="false"><path d="M1.5 7.5 6.5 12.5 16.5 1.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="marcador__texto">Entendo que as peças vendidas no bazar podem apresentar pequenos defeitos, avarias ou imperfeições. <em>(obrigatório)</em></span>
+        </label>
+        <p class="campo__erro" id="erro-termos" role="alert" hidden></p>
+      </div>
+
+      <button class="botao-confirmar" type="submit" id="confirmar">
+        <span class="botao-confirmar__texto">CONFIRMAR AGENDAMENTO</span>
+        <span class="botao-confirmar__carregando" aria-hidden="true">
+          <svg class="giro" viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-opacity=".25"/><path d="M21 12a9 9 0 0 0-9-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+          Enviando…
+        </span>
+      </button>
+
+      <p class="nota-seguranca">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.8 4.5 6v5.6c0 4.6 3.1 8.4 7.5 9.6 4.4-1.2 7.5-5 7.5-9.6V6L12 2.8Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.8 11.8 2.2 2.2 4.2-4.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Seus dados são usados apenas para organizar o bazar. O CPF é guardado de forma criptografada e não é compartilhado.
+      </p>
+    </form>
+
+    <!-- ============================= SUCESSO ============================= -->
+    <section class="sucesso" id="sucesso" hidden aria-live="polite" aria-labelledby="sucesso-titulo">
+      <div class="sucesso__icone" aria-hidden="true">
+        <svg viewBox="0 0 52 52" focusable="false">
+          <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" stroke-width="2.4"/>
+          <path d="m15 27 7.2 7.2L37.5 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="sucesso__sobre">Tudo certo</p>
+      <h2 id="sucesso-titulo">Agendamento confirmado</h2>
+      <p class="sucesso__resumo" id="sucesso-resumo"></p>
+
+      <dl class="sucesso__dados">
+        <div><dt>Nome</dt><dd id="sucesso-nome"></dd></div>
+        <div><dt>Data</dt><dd id="sucesso-data"></dd></div>
+        <div><dt>Horário</dt><dd id="sucesso-horario"></dd></div>
+        <div><dt>Protocolo</dt><dd id="sucesso-protocolo"></dd></div>
+      </dl>
+
+      <p class="sucesso__aviso">
+        Guarde o protocolo. No dia do bazar, apresente o seu CPF na entrada.
+      </p>
+
+      <div class="sucesso__acoes">
+        <button type="button" class="botao-secundario" id="baixar-calendario">Adicionar ao calendário</button>
+        <button type="button" class="botao-secundario botao-secundario--discreto" id="reiniciar">Fazer outro agendamento</button>
+      </div>
+    </section>
+
+    <!-- ============================= RODAPÉ ============================= -->
+    <footer class="rodape">
+      <svg class="rodape__logo" viewBox="0 0 55.5 22.5" role="img" aria-label="Lizie" focusable="false">
+        <path d="M2.01232 20.5245H6.41812V22.25H0.25V0.25H2.01232V20.5245Z"/>
+        <path d="M15.8906 22.25H14.1283V0.25H15.8906V22.25Z"/>
+        <path d="M25.8191 20.5245H31.9481V22.25H23.3934L30.1217 1.97549H24.6785V0.25H32.5472L25.8191 20.5245Z"/>
+        <path d="M41.8123 22.25H40.05V0.25H41.8123V22.25Z"/>
+        <path d="M55.25 1.97549H51.2848V10.3873H53.708V12.1127H51.2848V20.5245H55.25V22.25H49.5225V0.25H55.25V1.97549Z"/>
+      </svg>
+    </footer>
+  </main>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
