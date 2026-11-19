@@ -3,6 +3,8 @@
 Página pública de agendamento do bazar, com cadastro único por CPF, 30 vagas por
 horário e gravação segura no Supabase.
 
+- **Site publicado:** https://wagner-aick.github.io/agendamento-bazar-lizie/
+- **Repositório:** https://github.com/wagner-aick/agendamento-bazar-lizie
 - **Site:** HTML, CSS e JavaScript puros (sem build, sem dependências de CDN).
 - **Banco:** Supabase (Postgres) com RLS e funções `SECURITY DEFINER`.
 - **API:** Edge Function `bazar` — o navegador nunca recebe chave do Supabase.
@@ -162,3 +164,11 @@ Pages a cada push na branch `main`.
 - IP: apenas hash, por 2 dias, para conter abuso.
 - O consentimento de novidades é opcional e registrado separadamente do aceite
   obrigatório sobre defeitos das peças.
+
+## Legado
+
+O projeto Supabase já tinha tabelas vazias de uma tentativa anterior
+(`cadastros`, `agendamentos`, `calendario_vagas`, `aux_dias_semana`, `teste`).
+Elas foram mantidas e tiveram o acesso revogado; o sistema atual usa apenas as
+tabelas `bazar_*`. Se não forem mais necessárias, podem ser removidas com
+segurança depois de uma conferência.
