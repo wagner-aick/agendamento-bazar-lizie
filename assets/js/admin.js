@@ -105,7 +105,6 @@
   var notaHorarios = $("#nota-horarios");
   var contagemEl = $("#contagem");
   var subtitulo = $("#subtitulo");
-  var carregandoEl = $("#carregando");
   var vazioEl = $("#vazio");
   var vazioTitulo = $("#vazio-titulo");
   var vazioTexto = $("#vazio-texto");

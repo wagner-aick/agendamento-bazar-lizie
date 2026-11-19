@@ -14,8 +14,8 @@
 :root {
   --tinta: #0d0d0d;
   --texto: #1a1a1a;
-  --suave: rgba(0, 0, 0, 0.56);
-  --fraco: rgba(0, 0, 0, 0.4);
+  --suave: rgba(0, 0, 0, 0.62);
+  --fraco: rgba(0, 0, 0, 0.58);
   --linha: rgba(0, 0, 0, 0.12);
   --linha-forte: rgba(0, 0, 0, 0.22);
   --fundo: #f2f2f1;
@@ -723,26 +723,6 @@ main {
   border-color: rgba(0, 0, 0, 0.4);
   background: #fff;
   transform: translateY(-1px);
-}
-
-/* -------------------------------------------------------------- esqueleto */
-.esqueleto {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.esqueleto span {
-  display: block;
-  height: 72px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.045), rgba(0, 0, 0, 0.075), rgba(0, 0, 0, 0.045));
-  background-size: 200% 100%;
-  animation: brilhar 1.2s linear infinite;
-}
-
-@keyframes brilhar {
-  to { background-position: -200% 0; }
 }
 
 /* ------------------------------------------------------------------ vazio */
