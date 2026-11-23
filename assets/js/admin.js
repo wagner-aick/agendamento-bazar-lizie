@@ -425,7 +425,8 @@
     detalhe.showModal();
     detalheFechar.focus();
 
-    // No desktop a linha clicada se transforma no painel.
+    // No desktop a linha clicada se transforma no painel: anima posição e
+    // tamanho (sem scale, que distorce o texto) e revela o conteúdo.
     if (
       !folhaMobile.matches &&
       botao &&
@@ -435,26 +436,51 @@
       var origem = botao.getBoundingClientRect();
 
       if (destino.width && destino.height) {
-        var dx = (origem.left + origem.width / 2) - (destino.left + destino.width / 2);
-        var dy = (origem.top + origem.height / 2) - (destino.top + destino.height / 2);
-        var sx = origem.width / destino.width;
-        var sy = origem.height / destino.height;
+        detalhe.style.position = "fixed";
+        detalhe.style.margin = "0";
+        detalhe.style.maxWidth = "none";
+        detalhe.style.left = origem.left + "px";
+        detalhe.style.top = origem.top + "px";
+        detalhe.style.width = origem.width + "px";
+        detalhe.style.height = origem.height + "px";
+        detalhe.style.overflow = "hidden";
+        detalhe.style.borderRadius = "10px";
+        detalhe.style.opacity = "0.6";
 
-        detalhe.animate(
+        var animacao = detalhe.animate(
           [
             {
-              transform: "translate(" + dx + "px, " + dy + "px) scale(" + sx + ", " + sy + ")",
-              opacity: 0.45,
-              borderRadius: "10px"
+              left: origem.left + "px",
+              top: origem.top + "px",
+              width: origem.width + "px",
+              height: origem.height + "px",
+              borderRadius: "10px",
+              opacity: 0.6
             },
             {
-              transform: "translate(0, 0) scale(1, 1)",
-              opacity: 1,
-              borderRadius: "12px"
+              left: destino.left + "px",
+              top: destino.top + "px",
+              width: destino.width + "px",
+              height: destino.height + "px",
+              borderRadius: "12px",
+              opacity: 1
             }
           ],
-          { duration: 280, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" }
+          { duration: 260, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" }
         );
+
+        animacao.finished.finally(function () {
+          detalhe.style.position = "";
+          detalhe.style.margin = "";
+          detalhe.style.maxWidth = "";
+          detalhe.style.left = "";
+          detalhe.style.top = "";
+          detalhe.style.width = "";
+          detalhe.style.height = "";
+          detalhe.style.overflow = "";
+          detalhe.style.borderRadius = "";
+          detalhe.style.opacity = "";
+        });
       }
     }
   }
@@ -723,10 +749,20 @@
         );
       }
 
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        try {
+          await detalhe.animate(
+            [{ opacity: 1 }, { opacity: 0 }],
+            { duration: 140, easing: "ease-in" }
+          ).finished;
+        } catch (erro) {
+          /* segue para fechar */
+        }
+      }
+
       detalhe.close();
       mostrarAviso("Inscrição de " + nome + " excluída.", "sucesso");
-      await carregar(true);
-    } catch (erro) {
+      await carregar(true);    } catch (erro) {
       var texto = erro && erro.name === "AbortError"
         ? "Conexão lenta. Tente novamente."
         : (erro && erro.message ? erro.message : "Não foi possível excluir.");
