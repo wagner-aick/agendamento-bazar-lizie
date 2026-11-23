@@ -54,6 +54,10 @@ const ERROS: Record<string, { status: number; mensagem: string }> = {
     status: 403,
     mensagem: "As inscrições para este bazar estão encerradas.",
   },
+  AGENDAMENTO_NAO_ABERTO: {
+    status: 403,
+    mensagem: "As inscrições ainda não abriram. O agendamento abre em 24/11, às 13:00.",
+  },
   MUITAS_TENTATIVAS: {
     status: 429,
     mensagem: "Muitas tentativas em pouco tempo. Aguarde alguns minutos e tente novamente.",

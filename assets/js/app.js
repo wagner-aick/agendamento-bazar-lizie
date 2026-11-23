@@ -30,6 +30,11 @@
   var avisoEl = $("#aviso");
   var botaoConfirmar = $("#confirmar");
   var avisoTimer = null;
+  var encerradoSecao = $("#encerrado");
+  var tituloEncerrado = $("#titulo-encerrado");
+  var textoEncerrado = $("#texto-encerrado");
+  var contagemEl = $("#contagem");
+  var contagemTimer = null;
 
   /* ------------------------------------------------------------- utilidades */
 
@@ -553,7 +558,8 @@
     // A capa é uma arte estática; nada a sincronizar no DOM.
   }
 
-  async function carregarHorarios(forcar) {    var agora = Date.now();
+  async function carregarHorarios(forcar) {
+    var agora = Date.now();
     if (!forcar && agora - state.ultimaCarga < 15000) return;
     try {
       var resposta = await fetch(API_BASE + "/horarios", { headers: { Accept: "application/json" } });
@@ -564,23 +570,116 @@
       state.ultimaCarga = agora;
       atualizarCapa(state.evento);
       renderizarHorarios();
-      var encerrado = Boolean(state.evento && state.evento.aberto === false);
-      var avisoEncerrado = $("#encerrado");
-      if (avisoEncerrado) avisoEncerrado.hidden = !encerrado;
-      if (encerrado) {
-        form.hidden = true;
-        selecaoHorario.botao.disabled = true;
-        selecaoHorario.definir("Agendamento encerrado", "");
-        botaoConfirmar.disabled = true;
+
+      if (state.evento && state.evento.aberto === false) {
+        bloquearAgendamento();
       } else if (sucesso.hidden) {
-        form.hidden = false;
-        botaoConfirmar.disabled = false;
+        liberarAgendamento();
       }
     } catch (erro) {
       selecaoHorario.definir("Não foi possível carregar", "");
       selecaoHorario.botao.disabled = true;
       mostrarAviso("Não conseguimos carregar os horários. Verifique sua conexão e recarregue a página.", "erro");
     }
+  }
+
+  /* ------------------------------------------------ abertura programada */
+
+  function quandoAbre(iso) {
+    var data = new Date(iso);
+    if (!iso || isNaN(data.getTime())) return "";
+    var dia = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit"
+    }).format(data);
+    var hora = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(data);
+    return dia + ", às " + hora;
+  }
+
+  function contagemRestante(iso) {
+    var alvo = new Date(iso).getTime();
+    if (!iso || !isFinite(alvo)) return "";
+    var segundos = Math.floor((alvo - Date.now()) / 1000);
+    if (segundos <= 0) return "";
+
+    var dias = Math.floor(segundos / 86400);
+    var horas = Math.floor((segundos % 86400) / 3600);
+    var minutos = Math.floor((segundos % 3600) / 60);
+    var resto = segundos % 60;
+    var dois = function (n) {
+      return String(n).padStart(2, "0");
+    };
+
+    if (dias > 0) return "Abre em " + dias + (dias === 1 ? " dia" : " dias") + " e " + horas + "h";
+    if (horas > 0) return "Abre em " + horas + "h " + dois(minutos) + "min";
+    if (minutos > 0) return "Abre em " + minutos + "min " + dois(resto) + "s";
+    return "Abre em " + resto + "s";
+  }
+
+  function atualizarContagem() {
+    var iso = state.evento && state.evento.abre_em;
+    var texto = contagemRestante(iso);
+    if (!texto) {
+      desligarContagem();
+      contagemEl.hidden = true;
+      contagemEl.textContent = "";
+      carregarHorarios(true);
+      return;
+    }
+    contagemEl.textContent = texto;
+    contagemEl.hidden = false;
+  }
+
+  function ligarContagem() {
+    if (contagemTimer) return;
+    contagemTimer = window.setInterval(atualizarContagem, 1000);
+  }
+
+  function desligarContagem() {
+    if (!contagemTimer) return;
+    window.clearInterval(contagemTimer);
+    contagemTimer = null;
+  }
+
+  function bloquearAgendamento() {
+    var iso = state.evento && state.evento.abre_em;
+    var alvo = iso ? new Date(iso).getTime() : 0;
+    var aguardando = Boolean(iso) && isFinite(alvo) && alvo > Date.now();
+
+    form.hidden = true;
+    selecaoHorario.botao.disabled = true;
+    botaoConfirmar.disabled = true;
+    encerradoSecao.hidden = false;
+
+    if (aguardando) {
+      tituloEncerrado.textContent = "As inscrições ainda não abriram";
+      textoEncerrado.textContent = "O agendamento abre em " + quandoAbre(iso) + ".";
+      atualizarContagem();
+      ligarContagem();
+    } else {
+      tituloEncerrado.textContent = "Agendamento encerrado";
+      textoEncerrado.textContent = "As inscrições para este bazar foram encerradas.";
+      contagemEl.hidden = true;
+      contagemEl.textContent = "";
+      desligarContagem();
+    }
+  }
+
+  function liberarAgendamento() {
+    desligarContagem();
+    encerradoSecao.hidden = true;
+    contagemEl.hidden = true;
+    contagemEl.textContent = "";
+    form.hidden = false;
+    selecaoHorario.botao.disabled = false;
+    botaoConfirmar.disabled = false;
+    renderizarHorarios();
   }
 
   /* ---------------------------------------------------------------- avisos */
@@ -629,7 +728,12 @@
     if (state.enviando) return;
 
     if (state.evento && state.evento.aberto === false) {
-      mostrarAviso("Agendamento encerrado.", "erro");
+      var abreEm = state.evento.abre_em ? new Date(state.evento.abre_em).getTime() : 0;
+      if (abreEm && abreEm > Date.now()) {
+        mostrarAviso("O agendamento abre em " + quandoAbre(state.evento.abre_em) + ".", "info");
+      } else {
+        mostrarAviso("Agendamento encerrado.", "erro");
+      }
       return;
     }
 
@@ -736,11 +840,9 @@
       return;
     }
 
-    if (codigo === "INSCRICOES_ENCERRADAS") {
+    if (codigo === "AGENDAMENTO_NAO_ABERTO" || codigo === "INSCRICOES_ENCERRADAS") {
       if (state.evento) state.evento.aberto = false;
-      form.hidden = true;
-      var avisoFechado = $("#encerrado");
-      if (avisoFechado) avisoFechado.hidden = false;
+      bloquearAgendamento();
       mostrarAviso(mensagem, "erro");
       return;
     }
@@ -815,10 +917,11 @@
     });
     renderizarHorarios();
     sucesso.hidden = true;
-    var encerrado = Boolean(state.evento && state.evento.aberto === false);
-    form.hidden = encerrado;
-    var avisoEncerrado = $("#encerrado");
-    if (avisoEncerrado) avisoEncerrado.hidden = !encerrado;
+    if (state.evento && state.evento.aberto === false) {
+      bloquearAgendamento();
+    } else {
+      liberarAgendamento();
+    }
     carregarHorarios(true);
     $("#nome").focus();
     cartao.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -336,6 +336,17 @@ svg {
   color: var(--texto-suave);
 }
 
+.encerrado__contagem {
+  margin-top: 14px !important;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.045);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--texto-medio) !important;
+}
+
 /* ------------------------------------------------------------- formulário */
 .formulario {
   display: block;

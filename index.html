@@ -75,8 +75,8 @@
   <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/montagu-slab.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/styles.css?v=15">
-  <script src="assets/js/app.js?v=7" defer></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=16">
+  <script src="assets/js/app.js?v=8" defer></script>
 </head>
 <body>
   <div class="fundo" aria-hidden="true">
@@ -141,7 +141,8 @@
         </svg>
       </div>
       <h2 id="titulo-encerrado">Agendamento encerrado</h2>
-      <p>As inscrições para este bazar foram encerradas.</p>
+      <p id="texto-encerrado">As inscrições para este bazar foram encerradas.</p>
+      <p class="encerrado__contagem" id="contagem" hidden aria-hidden="true"></p>
     </section>
 
     <!-- ============================= FORMULÁRIO ============================= -->

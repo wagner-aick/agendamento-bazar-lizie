@@ -56,7 +56,7 @@ Projeto: `molespouzrulyubcfxph` (região `sa-east-1`).
 
 O SQL está em `supabase/migrations/20261119000100_bazar.sql`. Ele cria:
 
-- `bazar_config` — data do evento, permanência e flag `aberto`.
+- `bazar_config` — data do evento, permanência, flag `aberto` e `abre_em`.
 - `bazar_horarios` — horários e vagas (30 por horário).
 - `bazar_inscricoes` — inscrições (CPF como HMAC + máscara).
 - `bazar_tentativas` — controle de tentativas por IP.
@@ -167,17 +167,31 @@ order by h.hora, i.nome;
 
 Para exportar em CSV, use o botão **Export** do SQL Editor.
 
-### Fechar as inscrições
+### Abrir e fechar as inscrições
 
 As inscrições param automaticamente à 00:00 do dia do evento
 (`America/Sao_Paulo`). A página pública passa a mostrar **“Agendamento
 encerrado”** e a API recusa novas inscrições com `INSCRICOES_ENCERRADAS`.
 
-Para encerrar antes:
+A coluna `bazar_config.abre_em` agenda a abertura. Enquanto o horário não
+chega, a página mostra **“As inscrições ainda não abriram”** com contagem
+regressiva e a API responde `AGENDAMENTO_NAO_ABERTO` (403). `NULL` = já aberto.
 
 ```sql
+-- abre em 24/11 às 13:00 (horário de São Paulo)
+update public.bazar_config
+set abre_em = timestamptz '2026-11-24 13:00:00-03'
+where id = 1;
+
+-- abre imediatamente
+update public.bazar_config set abre_em = null where id = 1;
+
+-- encerra agora (antes da data do evento)
 update public.bazar_config set aberto = false where id = 1;
 ```
+
+A página se atualiza sozinha quando a contagem chega a zero (e ao voltar para
+a aba); ninguém precisa recarregar.
 
 ### Mudar data, horários ou vagas
 
