@@ -139,6 +139,7 @@
 
   function celularValido(valor) {
     var d = somenteDigitos(valor);
+    if (d.length > 11 && d.slice(0, 2) === "55") d = d.slice(2);
     if (d.length < 10 || d.length > 11) return false;
     var ddd = Number(d.slice(0, 2));
     return ddd >= 11 && ddd <= 99;
@@ -284,7 +285,22 @@
   }
 
   aplicarMascara($("#cpf"), formatarCpf, contarDigito);
-  aplicarMascara($("#celular"), formatarCelular, contarDigito);
+  $("#celular").addEventListener("input", function () {
+    var input = this;
+    var d = somenteDigitos(input.value);
+    if (d.length > 11 && d.slice(0, 2) === "55") d = d.slice(2);
+    d = d.slice(0, 11);
+    var local = formatarCelular(d);
+    var novo = local ? "+55 " + local : "";
+    if (novo !== input.value) {
+      input.value = novo;
+      try {
+        input.setSelectionRange(novo.length, novo.length);
+      } catch (erro) {
+        /* alguns navegadores móveis não permitem */
+      }
+    }
+  });
   aplicarMascara($("#nome"), formatarNome, contarCaractere);
 
   $("#email").addEventListener("input", function (evento) {
@@ -592,7 +608,7 @@
       nome: $("#nome").value.trim(),
       email: $("#email").value.trim(),
       cpf: $("#cpf").value.trim(),
-      celular: $("#celular").value.trim(),
+      celular: $("#celular").value.replace(/^\+55\s*/, "").trim(),
       horarioId: state.horarioId,
       comoSoube: state.origem,
       aceitaNovidades: $("#novidades").checked,
