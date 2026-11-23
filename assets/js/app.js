@@ -563,7 +563,10 @@
     var agora = Date.now();
     if (!forcar && agora - state.ultimaCarga < 15000) return;
     try {
-      var resposta = await fetch(API_BASE + "/horarios", { headers: { Accept: "application/json" } });
+      var resposta = await fetch(API_BASE + "/horarios", {
+        cache: "no-store",
+        headers: { Accept: "application/json" }
+      });
       if (!resposta.ok) throw new Error("HTTP " + resposta.status);
       var dados = await resposta.json();
       state.horarios = Array.isArray(dados.horarios) ? dados.horarios : [];
