@@ -1133,18 +1133,9 @@ main {
     justify-self: end;
   }
 
-  .detalhe[open] {
-    animation: detalhe-morfar 0.24s var(--ease);
-  }
-
   .detalhe[open]::backdrop {
     animation: fundo-surgir 0.2s ease;
   }
-}
-
-@keyframes detalhe-morfar {
-  from { opacity: 0; transform: scale(0.94) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes detalhe-subir {

@@ -103,6 +103,7 @@
   var avisoTimer = null;
   var buscaTimer = null;
   var atualizacaoTimer = null;
+  var folhaMobile = window.matchMedia("(max-width: 559px)");
 
   /* ------------------------------------------------------------- storage */
 
@@ -413,7 +414,7 @@
     chipsEl.scrollLeft = rolagem;
   }
 
-  function abrirDetalhe(item) {
+  function abrirDetalhe(item, botao) {
     state.selecionado = item;
     detalheNome.textContent = item.nome;
     detalheMeta.textContent = item.cpf + " · " + formatarCelular(item.celular);
@@ -423,6 +424,39 @@
     atualizarPresenca();
     detalhe.showModal();
     detalheFechar.focus();
+
+    // No desktop a linha clicada se transforma no painel.
+    if (
+      !folhaMobile.matches &&
+      botao &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      var destino = detalhe.getBoundingClientRect();
+      var origem = botao.getBoundingClientRect();
+
+      if (destino.width && destino.height) {
+        var dx = (origem.left + origem.width / 2) - (destino.left + destino.width / 2);
+        var dy = (origem.top + origem.height / 2) - (destino.top + destino.height / 2);
+        var sx = origem.width / destino.width;
+        var sy = origem.height / destino.height;
+
+        detalhe.animate(
+          [
+            {
+              transform: "translate(" + dx + "px, " + dy + "px) scale(" + sx + ", " + sy + ")",
+              opacity: 0.45,
+              borderRadius: "10px"
+            },
+            {
+              transform: "translate(0, 0) scale(1, 1)",
+              opacity: 1,
+              borderRadius: "12px"
+            }
+          ],
+          { duration: 280, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" }
+        );
+      }
+    }
   }
 
   function atualizarPresenca() {
@@ -479,7 +513,7 @@
         }
 
         botao.addEventListener("click", function () {
-          abrirDetalhe(item);
+          abrirDetalhe(item, botao);
         });
 
         li.appendChild(botao);
@@ -571,7 +605,6 @@
 
   /* Arrastar para baixo fecha a folha no celular. */
   var alcaArraste = { ativo: false, inicioY: 0, delta: 0 };
-  var folhaMobile = window.matchMedia("(max-width: 559px)");
 
   detalhe.addEventListener("pointerdown", function (evento) {
     if (!folhaMobile.matches) return;
