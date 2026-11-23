@@ -35,6 +35,7 @@
   var textoEncerrado = $("#texto-encerrado");
   var contagemEl = $("#contagem");
   var contagemTimer = null;
+  var sincronizarTimer = null;
 
   /* ------------------------------------------------------------- utilidades */
 
@@ -577,6 +578,7 @@
         liberarAgendamento();
       }
     } catch (erro) {
+      if (form.hidden) return;
       selecaoHorario.definir("Não foi possível carregar", "");
       selecaoHorario.botao.disabled = true;
       mostrarAviso("Não conseguimos carregar os horários. Verifique sua conexão e recarregue a página.", "erro");
@@ -647,6 +649,21 @@
     contagemTimer = null;
   }
 
+  // Relógio do visitante pode estar adiantado ou atrasado: reconsulta o
+  // servidor a cada 30 s enquanto estiver fechado para abrir na hora certa.
+  function ligarSincronizacao() {
+    if (sincronizarTimer) return;
+    sincronizarTimer = window.setInterval(function () {
+      carregarHorarios(true);
+    }, 30000);
+  }
+
+  function desligarSincronizacao() {
+    if (!sincronizarTimer) return;
+    window.clearInterval(sincronizarTimer);
+    sincronizarTimer = null;
+  }
+
   function bloquearAgendamento() {
     var iso = state.evento && state.evento.abre_em;
     var alvo = iso ? new Date(iso).getTime() : 0;
@@ -662,17 +679,20 @@
       textoEncerrado.textContent = "O agendamento abre em " + quandoAbre(iso) + ".";
       atualizarContagem();
       ligarContagem();
+      ligarSincronizacao();
     } else {
       tituloEncerrado.textContent = "Agendamento encerrado";
       textoEncerrado.textContent = "As inscrições para este bazar foram encerradas.";
       contagemEl.hidden = true;
       contagemEl.textContent = "";
       desligarContagem();
+      desligarSincronizacao();
     }
   }
 
   function liberarAgendamento() {
     desligarContagem();
+    desligarSincronizacao();
     encerradoSecao.hidden = true;
     contagemEl.hidden = true;
     contagemEl.textContent = "";
