@@ -1090,7 +1090,7 @@ svg {
 
 @media (min-width: 1024px) {
   .cartao {
-    zoom: 0.8;
+    zoom: 0.95;
   }
 }
 
