@@ -869,8 +869,21 @@ main {
 }
 
 @media (min-width: 1024px) {
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100dvh;
+  }
+
   main {
+    flex: 1 1 auto;
     padding: 34px 28px 56px;
+  }
+
+  .rodape {
+    margin-top: auto;
+    border-top: 0;
+    padding-bottom: 18px;
   }
 
   .login__cartao {
@@ -932,6 +945,11 @@ main {
   background: #ffffff;
   box-shadow: var(--sombra-flutuante);
   color: var(--texto);
+  transition: transform 0.2s var(--ease);
+}
+
+.detalhe__alca {
+  display: none;
 }
 
 .detalhe::backdrop {
@@ -1121,8 +1139,18 @@ main {
     width: 100%;
     max-width: none;
     margin: auto 0 0;
-    padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
+    padding: 14px 18px calc(20px + env(safe-area-inset-bottom));
     border-radius: 14px 14px 0 0;
+    touch-action: none;
+  }
+
+  .detalhe__alca {
+    display: block;
+    width: 40px;
+    height: 4px;
+    margin: 0 auto 14px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.22);
   }
 }
 

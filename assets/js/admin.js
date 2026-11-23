@@ -564,7 +564,49 @@
 
   detalhe.addEventListener("close", function () {
     state.selecionado = null;
+    alcaArraste.ativo = false;
+    detalhe.style.transform = "";
+    detalhe.style.transition = "";
   });
+
+  /* Arrastar para baixo fecha a folha no celular. */
+  var alcaArraste = { ativo: false, inicioY: 0, delta: 0 };
+  var folhaMobile = window.matchMedia("(max-width: 559px)");
+
+  detalhe.addEventListener("pointerdown", function (evento) {
+    if (!folhaMobile.matches) return;
+    if (evento.target.closest("button, a")) return;
+
+    alcaArraste.ativo = true;
+    alcaArraste.inicioY = evento.clientY;
+    alcaArraste.delta = 0;
+    detalhe.style.transition = "none";
+
+    try {
+      detalhe.setPointerCapture(evento.pointerId);
+    } catch (erro) {
+      /* alguns navegadores não suportam captura */
+    }
+  });
+
+  detalhe.addEventListener("pointermove", function (evento) {
+    if (!alcaArraste.ativo) return;
+    alcaArraste.delta = Math.max(0, evento.clientY - alcaArraste.inicioY);
+    detalhe.style.transform = "translateY(" + alcaArraste.delta + "px)";
+  });
+
+  function finalizarArraste() {
+    if (!alcaArraste.ativo) return;
+    alcaArraste.ativo = false;
+    detalhe.style.transition = "";
+
+    var fechar = alcaArraste.delta > 90;
+    detalhe.style.transform = "";
+    if (fechar) detalhe.close();
+  }
+
+  detalhe.addEventListener("pointerup", finalizarArraste);
+  detalhe.addEventListener("pointercancel", finalizarArraste);
 
   presencaBtn.addEventListener("click", async function () {
     var item = state.selecionado;
