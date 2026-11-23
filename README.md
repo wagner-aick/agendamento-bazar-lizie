@@ -103,20 +103,21 @@ Se o projeto Supabase mudar, troque essa linha e o `connect-src` da CSP em
 
 - URL: https://wagner-aick.github.io/agendamento-bazar-lizie/admin.html
 - Login por senha; a senha é conferida no banco com bcrypt.
-- A senha fica apenas no `sessionStorage` (por aba, some ao fechar o navegador).
+- O navegador guarda apenas um **token opaco de 12 h**; a senha é enviada uma vez.
 - Limite de 10 tentativas **erradas** por IP a cada 10 minutos; acertar a senha
-  zera o contador.
-- A página tem `noindex, nofollow` e não mostra nenhum dado sem a senha.
+  zera o contador. O IP vem de `cf-connecting-ip`/`x-real-ip`; `X-Forwarded-For`
+  é ignorado.
+- A página tem `noindex, nofollow` e não mostra nenhum dado sem o token.
+- CORS restrito a `https://wagner-aick.github.io` (e localhost em desenvolvimento).
 
 O painel é uma lista enxuta, pensada para a portaria:
 
-- busca por nome, CPF ou telefone;
+- busca por nome ou telefone;
 - chips por horário com a contagem;
 - pessoas agrupadas por horário, com nome, CPF mascarado e telefone clicável;
-- atualização automática a cada 15 segundos (e ao voltar para a aba);
-- exportação CSV discreta no topo.
+- atualização automática a cada 15 segundos (e ao voltar para a aba).
 
-Sem KPIs, gráficos ou métricas.
+Sem KPIs, gráficos, métricas, CSV, botão de atualizar ou de sair.
 
 #### Definir ou trocar a senha
 
@@ -134,8 +135,11 @@ on conflict (id) do update
 supabase functions deploy admin --no-verify-jwt
 ```
 
-Rota: `POST /admin/dados` com `{ "senha": "..." }`. A função usa `service_role`
-apenas no servidor e chama a RPC `bazar_admin_dados`.
+Rotas: `POST /admin/login` com `{ "senha": "..." }` (devolve token de 12 h) e
+`POST /admin/dados` com `{ "token": "..." }`. A função usa `service_role` apenas
+no servidor.
+
+> Auditoria completa, achados e riscos residuais: `AUDITORIA.md`.
 
 ### Ver inscrições
 

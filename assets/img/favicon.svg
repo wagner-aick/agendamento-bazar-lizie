@@ -1,4 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lizie">
-  <rect width="64" height="64" rx="14" fill="#0d0d0d"/>
-  <path d="M25 15h4.6v31.5H37V50H25V15Z" fill="#ffffff"/>
+  <style>
+    .letra { fill: #0d0d0d; }
+
+    @media (prefers-color-scheme: dark) {
+      .letra { fill: #ffffff; }
+    }
+  </style>
+  <g class="letra" transform="translate(4 20.6) scale(1.01)">
+    <path d="M2.01232 20.5245H6.41812V22.25H0.25V0.25H2.01232V20.5245Z"/>
+    <path d="M15.8906 22.25H14.1283V0.25H15.8906V22.25Z"/>
+    <path d="M25.8191 20.5245H31.9481V22.25H23.3934L30.1217 1.97549H24.6785V0.25H32.5472L25.8191 20.5245Z"/>
+    <path d="M41.8123 22.25H40.05V0.25H41.8123V22.25Z"/>
+    <path d="M55.25 1.97549H51.2848V10.3873H53.708V12.1127H51.2848V20.5245H55.25V22.25H49.5225V0.25H55.25V1.97549Z"/>
+  </g>
 </svg>

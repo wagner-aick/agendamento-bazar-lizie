@@ -1,23 +1,29 @@
 // =============================================================================
 // Bazar de Fábrica Lizie — Painel da equipe
-// Edge Function separada (verify_jwt = false) para consultar as inscrições.
-//   POST /admin/dados  { senha } -> valida no banco (bcrypt) e devolve tudo
+//   POST /admin/login  { senha } -> token de sessão (12h) + dados
+//   POST /admin/dados  { token } -> dados atualizados
 //
-// A senha nunca é gravada no código nem no navegador de forma permanente.
+// A senha só trafega no login. O navegador guarda um token opaco, nunca a senha.
 // =============================================================================
 
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Max-Age": "86400",
-};
+const ORIGENS_FIXAS = new Set(["https://wagner-aick.github.io"]);
 
-const JSON_HEADERS = {
-  ...CORS,
-  "Content-Type": "application/json; charset=utf-8",
-  "X-Content-Type-Options": "nosniff",
-};
+function origemPermitida(req: Request) {
+  const origem = req.headers.get("origin") || "";
+  if (ORIGENS_FIXAS.has(origem)) return origem;
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origem)) return origem;
+  return "https://wagner-aick.github.io";
+}
+
+function cors(req: Request) {
+  return {
+    "Access-Control-Allow-Origin": origemPermitida(req),
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin",
+  };
+}
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -28,6 +34,10 @@ const ERROS: Record<string, { status: number; mensagem: string }> = {
   SENHA_INVALIDA: {
     status: 401,
     mensagem: "Senha incorreta. Confira e tente novamente.",
+  },
+  SESSAO_EXPIRADA: {
+    status: 401,
+    mensagem: "Sessão expirada. Entre novamente.",
   },
   MUITAS_TENTATIVAS: {
     status: 429,
@@ -43,23 +53,30 @@ const ERROS: Record<string, { status: number; mensagem: string }> = {
   },
 };
 
-function json(body: unknown, status = 200, extra: Record<string, string> = {}) {
+function json(body: unknown, status: number, req: Request, extra: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...JSON_HEADERS, "Cache-Control": "no-store", ...extra },
+    headers: {
+      ...cors(req),
+      "Content-Type": "application/json; charset=utf-8",
+      "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "no-store",
+      ...extra,
+    },
   });
 }
 
-function falha(codigo: string) {
+function falha(codigo: string, req: Request) {
   const alvo = ERROS[codigo];
   if (!alvo) {
     console.error("admin: erro nao mapeado", codigo);
     return json(
       { ok: false, erro: "ERRO_INTERNO", mensagem: "Não foi possível carregar os dados. Tente novamente." },
       500,
+      req,
     );
   }
-  return json({ ok: false, erro: codigo, mensagem: alvo.mensagem }, alvo.status);
+  return json({ ok: false, erro: codigo, mensagem: alvo.mensagem }, alvo.status, req);
 }
 
 async function rpc(nome: string, corpo: unknown) {
@@ -89,14 +106,14 @@ async function rpc(nome: string, corpo: unknown) {
   return dados;
 }
 
+/** IP confiável: só headers definidos pela borda. X-Forwarded-For é ignorado. */
 async function hashIp(req: Request) {
-  const encaminhado = req.headers.get("x-forwarded-for") ?? "";
   const ip = (
-    encaminhado.split(",")[0] ||
     req.headers.get("cf-connecting-ip") ||
     req.headers.get("x-real-ip") ||
-    "0.0.0.0"
+    "local"
   ).trim();
+
   const bytes = new TextEncoder().encode(`lizie-bazar-admin:${ip}`);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(digest))
@@ -104,48 +121,71 @@ async function hashIp(req: Request) {
     .join("");
 }
 
+async function corpoJson(req: Request) {
+  const texto = await req.text();
+  if (new TextEncoder().encode(texto).length > MAX_BODY_BYTES) return null;
+  try {
+    const corpo = JSON.parse(texto);
+    if (typeof corpo !== "object" || corpo === null || Array.isArray(corpo)) return null;
+    return corpo as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: CORS });
+    return new Response(null, { status: 204, headers: cors(req) });
   }
 
   const url = new URL(req.url);
   const rota = url.pathname.replace(/\/+$/, "").split("/").pop();
 
   try {
-    if (req.method === "POST" && rota === "dados") {
-      const tamanho = Number(req.headers.get("content-length") ?? "0");
-      if (tamanho > MAX_BODY_BYTES) {
-        return falha("REQUISICAO_INVALIDA");
-      }
+    if (req.method === "POST" && rota === "login") {
+      const corpo = await corpoJson(req);
+      if (!corpo) return falha("REQUISICAO_INVALIDA", req);
 
-      let corpo: Record<string, unknown>;
-      try {
-        corpo = await req.json();
-      } catch {
-        return falha("REQUISICAO_INVALIDA");
-      }
-
-      const senha = typeof corpo?.senha === "string" ? corpo.senha : "";
+      const senha = typeof corpo.senha === "string" ? corpo.senha : "";
       if (senha.length < 1 || senha.length > 200) {
-        return falha("SENHA_INVALIDA");
+        return falha("SENHA_INVALIDA", req);
       }
 
-      const resultado = await rpc("bazar_admin_dados", {
+      const resultado = await rpc("bazar_admin_login", {
         p_senha: senha,
         p_ip_hash: await hashIp(req),
+      }) as { ok?: boolean; erro?: string; token?: string; dados?: unknown };
+
+      if (!resultado || resultado.ok !== true) {
+        return falha(resultado?.erro ?? "ERRO_INTERNO", req);
+      }
+
+      return json({ ok: true, token: resultado.token, dados: resultado.dados }, 200, req);
+    }
+
+    if (req.method === "POST" && rota === "dados") {
+      const corpo = await corpoJson(req);
+      if (!corpo) return falha("REQUISICAO_INVALIDA", req);
+
+      const token = typeof corpo.token === "string" ? corpo.token : "";
+      if (!/^[a-f0-9]{64}$/.test(token)) {
+        return falha("SESSAO_EXPIRADA", req);
+      }
+
+      const resultado = await rpc("bazar_admin_dados_token", {
+        p_token: token,
       }) as { ok?: boolean; erro?: string; dados?: unknown };
 
       if (!resultado || resultado.ok !== true) {
-        return falha(resultado?.erro ?? "ERRO_INTERNO");
+        return falha(resultado?.erro ?? "ERRO_INTERNO", req);
       }
 
-      return json({ ok: true, dados: resultado.dados });
+      return json({ ok: true, dados: resultado.dados }, 200, req);
     }
 
-    return json({ ok: false, erro: "ROTA_NAO_ENCONTRADA" }, 404);
+    return json({ ok: false, erro: "ROTA_NAO_ENCONTRADA" }, 404, req);
   } catch (erro) {
     const codigo = erro instanceof Error ? erro.message : "ERRO_INTERNO";
-    return falha(codigo);
+    return falha(codigo, req);
   }
 });

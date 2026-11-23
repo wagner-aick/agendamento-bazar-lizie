@@ -10,11 +10,11 @@
   <title>Bazar de Fábrica Lizie — Agendamento</title>
   <meta name="description" content="Agende o seu horário no Bazar de Fábrica Lizie. 30 vagas por horário, das 09h às 16h.">
 
-  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/montagu-slab.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/styles.css?v=3">
-  <script src="assets/js/app.js?v=3" defer></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=5">
+  <script src="assets/js/app.js?v=5" defer></script>
 </head>
 <body>
   <div class="fundo" aria-hidden="true">
@@ -26,8 +26,14 @@
   <main class="cartao" id="cartao">
     <!-- ============================= CAPA ============================= -->
     <section class="capa">
-      <img class="capa__imagem" src="assets/img/hero.jpg" width="2000" height="1138"
-           alt="Bazar de Fábrica Lizie — 01.12, agendamento das 09h às 16h, permanência máxima de 1 hora, 30 vagas por horário. Rua Capt. Felix, 34, Benfica, próximo ao Cadeg.">
+      <a class="capa__link"
+         href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Capt.+Felix%2C+34+-+Benfica%2C+Rio+de+Janeiro"
+         target="_blank" rel="noopener noreferrer"
+         title="Abrir localização no Google Maps"
+         aria-label="Abrir a localização do bazar no Google Maps">
+        <img class="capa__imagem" src="assets/img/hero.jpg" width="2000" height="1138"
+             alt="Bazar de Fábrica Lizie — 01.12, agendamento das 09h às 16h, permanência máxima de 1 hora, 30 vagas por horário. Rua Capt. Felix, 34, Benfica, próximo ao Cadeg.">
+      </a>
       <h1 class="visualmente-oculto">Bazar de Fábrica Lizie — agendamento</h1>
     </section>
 
@@ -54,7 +60,7 @@
           <label class="campo__rotulo" id="rotulo-horario" for="horario">Escolha Seu Horário</label>
           <div class="selecao" id="selecao-horario">
             <button type="button" class="selecao__botao" id="horario" name="horario"
-                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="rotulo-horario"
+                    aria-haspopup="listbox" aria-expanded="false"
                     aria-describedby="erro-horario">
               <span class="selecao__valor" data-valor>Carregando…</span>
               <span class="selecao__dica" data-dica></span>
@@ -94,7 +100,7 @@
           <div class="campo__controle campo__controle--prefixo">
             <span class="campo__prefixo" aria-hidden="true">+55</span>
             <input id="celular" name="celular" type="tel" inputmode="numeric" autocomplete="tel-national"
-                   placeholder="21 90000-0000" maxlength="16" aria-describedby="erro-celular">
+                   placeholder="21 90000-0000" maxlength="19" aria-describedby="erro-celular">
           </div>
           <p class="campo__erro" id="erro-celular" role="alert" hidden></p>
         </div>
@@ -114,7 +120,7 @@
           <label class="campo__rotulo" id="rotulo-origem" for="origem">Como Soube do Bazar?</label>
           <div class="selecao" id="selecao-origem">
             <button type="button" class="selecao__botao" id="origem" name="origem"
-                    aria-haspopup="listbox" aria-expanded="false" aria-labelledby="rotulo-origem"
+                    aria-haspopup="listbox" aria-expanded="false"
                     aria-describedby="erro-origem">
               <span class="selecao__valor" data-valor>Selecione uma opção</span>
               <svg class="selecao__seta" viewBox="0 0 16 10" aria-hidden="true" focusable="false">
@@ -221,7 +227,7 @@
         <path d="M41.8123 22.25H40.05V0.25H41.8123V22.25Z"/>
         <path d="M55.25 1.97549H51.2848V10.3873H53.708V12.1127H51.2848V20.5245H55.25V22.25H49.5225V0.25H55.25V1.97549Z"/>
       </svg>
-      <a class="rodape__equipe" href="admin.html">Painel da equipe</a>
+      <p class="rodape__contato">Dúvidas ou erros: <a href="mailto:bi@lizie.com.br">bi@lizie.com.br</a></p>
     </footer>
   </main>
 

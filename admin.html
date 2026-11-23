@@ -11,10 +11,10 @@
   <title>Painel do Bazar — Lizie</title>
   <meta name="description" content="Painel interno da equipe para consultar os agendamentos do Bazar de Fábrica Lizie.">
 
-  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/admin.css?v=3">
-  <script src="assets/js/admin.js?v=3" defer></script>
+  <link rel="stylesheet" href="assets/css/admin.css?v=5">
+  <script src="assets/js/admin.js?v=5" defer></script>
 </head>
 <body class="sem-rolagem">
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -37,27 +37,20 @@
         <strong>Painel do Bazar</strong>
         <span>Bazar de Fábrica Lizie</span>
       </div>
-
-      <div class="topo__acoes" id="acoes-topo" hidden>
-        <button type="button" class="botao-icone" id="atualizar" title="Atualizar" aria-label="Atualizar">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M20 11a8 8 0 1 0-2.3 6.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button type="button" class="botao-icone botao-icone--sair" id="sair" title="Sair" aria-label="Sair">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M10 8l4 4-4 4M14 12H3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
     </div>
   </header>
 
-  <main id="conteudo">
+  <main id="conteudo" tabindex="-1">
+    <!-- ============================= ABERTURA ============================= -->
+    <div class="abertura" id="abertura" role="status" aria-label="Carregando painel">
+      <svg class="giro" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-opacity=".25"/>
+        <path d="M21 12a9 9 0 0 0-9-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+
     <!-- ============================= LOGIN ============================= -->
-    <section class="login" id="tela-login" aria-labelledby="titulo-login">
+    <section class="login" id="tela-login" hidden aria-labelledby="titulo-login">
       <form class="login__cartao" id="form-login" novalidate>
         <div class="login__icone" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
@@ -107,17 +100,18 @@
     <!-- ============================= PAINEL ============================= -->
     <section class="painel" id="tela-painel" hidden aria-labelledby="titulo-painel">
       <div class="painel__topo">
-        <div>
-          <h1 id="titulo-painel">Agendamentos</h1>
-          <p class="painel__subtitulo" id="subtitulo">Carregando…</p>
+        <div class="titulo-grupo">
+          <span class="titulo-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M12 7.5V12l3 1.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div>
+            <h1 id="titulo-painel">Agendamentos</h1>
+            <p class="painel__subtitulo" id="subtitulo">Carregando…</p>
+          </div>
         </div>
-        <button type="button" class="botao-icone botao-icone--borda" id="exportar"
-                title="Baixar CSV" aria-label="Baixar CSV">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
       </div>
 
       <div class="busca">
@@ -125,8 +119,8 @@
           <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
           <path d="m15.5 15.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
-        <label class="visualmente-oculto" for="busca">Buscar por nome, CPF ou telefone</label>
-        <input id="busca" type="search" placeholder="Nome, CPF ou telefone"
+        <label class="visualmente-oculto" for="busca">Buscar por nome ou telefone</label>
+        <input id="busca" type="search" placeholder="Nome ou telefone"
                autocomplete="off" spellcheck="false">
       </div>
 

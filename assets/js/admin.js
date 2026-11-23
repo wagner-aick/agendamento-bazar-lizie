@@ -1,17 +1,19 @@
 /* =============================================================================
    Bazar de Fábrica Lizie — Painel da equipe
    Minimalista: lista por horário, busca, filtro e atualização automática.
+   O navegador guarda um token de 12h, nunca a senha.
    ============================================================================= */
 
 (function () {
   "use strict";
 
   var API_BASE = "https://molespouzrulyubcfxph.supabase.co/functions/v1/admin";
-  var CHAVE_SESSAO = "bazar_admin_senha";
+  var CHAVE_TOKEN = "bazar_admin_token";
   var INTERVALO_ATUALIZACAO = 15000;
+  var TEMPO_LIMITE = 12000;
 
   var state = {
-    senha: "",
+    token: "",
     dados: null,
     busca: "",
     horario: "",
@@ -49,19 +51,6 @@
     return valor || "";
   }
 
-  function formatarDataHora(iso) {
-    if (!iso) return "";
-    var data = new Date(iso);
-    if (isNaN(data.getTime())) return "";
-    return data.toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
-
   function dataCurta(iso) {
     if (!iso) return "";
     var partes = String(iso).split("-");
@@ -69,14 +58,11 @@
     return partes[2] + "." + partes[1];
   }
 
-  function protocoloCurto(id) {
-    return "LZ-" + String(id || "").replace(/-/g, "").slice(0, 8).toUpperCase();
-  }
-
   /* ------------------------------------------------------------- elementos */
 
   var telaLogin = $("#tela-login");
   var telaPainel = $("#tela-painel");
+  var abertura = $("#abertura");
   var topo = $("#topo");
   var formLogin = $("#form-login");
   var campoSenha = $("#senha");
@@ -84,9 +70,6 @@
   var erroLogin = $("#erro-login");
   var botaoEntrar = $("#entrar");
   var botaoMostrar = $("#mostrar-senha");
-  var acoesTopo = $("#acoes-topo");
-  var botaoAtualizar = $("#atualizar");
-  var botaoSair = $("#sair");
   var buscaInput = $("#busca");
   var chipsEl = $("#chips");
   var gruposEl = $("#grupos");
@@ -94,12 +77,37 @@
   var vazioEl = $("#vazio");
   var vazioTitulo = $("#vazio-titulo");
   var botaoLimpar = $("#limpar-filtros");
-  var botaoExportar = $("#exportar");
   var avisoEl = $("#aviso");
 
   var avisoTimer = null;
   var buscaTimer = null;
   var atualizacaoTimer = null;
+
+  /* ------------------------------------------------------------- storage */
+
+  function lerToken() {
+    try {
+      return sessionStorage.getItem(CHAVE_TOKEN) || "";
+    } catch (erro) {
+      return "";
+    }
+  }
+
+  function gravarToken(token) {
+    try {
+      sessionStorage.setItem(CHAVE_TOKEN, token);
+    } catch (erro) {
+      /* modo privado: segue sem persistir */
+    }
+  }
+
+  function apagarToken() {
+    try {
+      sessionStorage.removeItem(CHAVE_TOKEN);
+    } catch (erro) {
+      /* ignora */
+    }
+  }
 
   /* ---------------------------------------------------------------- avisos */
 
@@ -133,60 +141,111 @@
     }
   }
 
-  /* ---------------------------------------------------------------- login */
+  /* ---------------------------------------------------------------- rede */
+
+  async function requisitar(rota, corpo) {
+    var controle = new AbortController();
+    var timer = setTimeout(function () {
+      controle.abort();
+    }, TEMPO_LIMITE);
+
+    try {
+      var resposta = await fetch(API_BASE + rota, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(corpo),
+        signal: controle.signal
+      });
+
+      var dados = null;
+      try {
+        dados = await resposta.json();
+      } catch (erro) {
+        dados = null;
+      }
+
+      return { resposta: resposta, dados: dados };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
 
   function definirCarregando(ativo) {
     state.carregando = ativo;
     botaoEntrar.disabled = ativo;
     botaoEntrar.setAttribute("data-carregando", ativo ? "true" : "false");
-    botaoAtualizar.disabled = ativo;
   }
 
-  async function carregar(senha, silencioso) {
+  async function entrar(senha) {
     if (state.carregando) return;
     definirCarregando(true);
-    if (!silencioso) erroLoginVisivel("");
+    erroLoginVisivel("");
 
     try {
-      var resposta = await fetch(API_BASE + "/dados", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ senha: senha })
-      });
+      var resultado = await requisitar("/login", { senha: senha });
+      var dados = resultado.dados;
 
-      var corpo = null;
-      try {
-        corpo = await resposta.json();
-      } catch (e) {
-        corpo = null;
-      }
-
-      if (!resposta.ok || !corpo || corpo.ok !== true) {
-        var codigo = corpo && corpo.erro ? corpo.erro : "";
-        var mensagem = corpo && corpo.mensagem ? corpo.mensagem : "Não foi possível carregar os dados.";
-
-        if (codigo === "SENHA_INVALIDA" || resposta.status === 401) {
-          encerrarSessao();
-          mostrarLogin();
-          erroLoginVisivel(mensagem);
+      if (!resultado.resposta.ok || !dados || dados.ok !== true) {
+        if (dados && dados.erro === "SENHA_INVALIDA") {
+          erroLoginVisivel(dados.mensagem || "Senha incorreta.");
           campoSenha.focus();
           return;
         }
-
-        throw new Error(mensagem);
+        throw new Error(dados && dados.mensagem ? dados.mensagem : "Não foi possível entrar.");
       }
 
-      state.dados = corpo.dados;
-      state.senha = senha;
+      state.token = dados.token;
+      state.dados = dados.dados;
       state.ultimaCarga = Date.now();
-      sessionStorage.setItem(CHAVE_SESSAO, senha);
-
+      gravarToken(state.token);
+      campoSenha.value = "";
       mostrarPainel();
     } catch (erro) {
-      var texto = erro && erro.message ? erro.message : "Sem conexão com o servidor.";
+      var texto = erro && erro.name === "AbortError"
+        ? "Tempo esgotado. Tente novamente."
+        : (erro && erro.message ? erro.message : "Sem conexão com o servidor.");
+      erroLoginVisivel(texto);
+    } finally {
+      definirCarregando(false);
+    }
+  }
+
+  async function carregar(silencioso) {
+    if (state.carregando || !state.token) return;
+    definirCarregando(true);
+
+    try {
+      var resultado = await requisitar("/dados", { token: state.token });
+      var dados = resultado.dados;
+
+      if (!resultado.resposta.ok || !dados || dados.ok !== true) {
+        if (resultado.resposta.status === 401) {
+          encerrarSessao();
+          mostrarLogin();
+          erroLoginVisivel(dados && dados.mensagem ? dados.mensagem : "Sessão expirada. Entre novamente.");
+          return;
+        }
+        throw new Error(dados && dados.mensagem ? dados.mensagem : "Não foi possível carregar os dados.");
+      }
+
+      state.dados = dados.dados;
+      state.ultimaCarga = Date.now();
+
+      if (telaPainel.hidden) {
+        mostrarPainel();
+      } else {
+        if (!silencioso) renderizar();
+        else renderizarComFoco();
+      }
+    } catch (erro) {
+      var texto = erro && erro.name === "AbortError"
+        ? "Conexão lenta. Tentando novamente…"
+        : (erro && erro.message ? erro.message : "Sem conexão com o servidor.");
+
       if (state.dados) {
         mostrarAviso(texto, "erro");
       } else {
+        mostrarLogin();
         erroLoginVisivel(texto);
       }
     } finally {
@@ -195,8 +254,8 @@
   }
 
   function encerrarSessao() {
-    sessionStorage.removeItem(CHAVE_SESSAO);
-    state.senha = "";
+    apagarToken();
+    state.token = "";
     state.dados = null;
   }
 
@@ -204,9 +263,9 @@
     pararAtualizacao();
     document.body.classList.add("sem-rolagem");
     topo.classList.add("topo--login");
+    abertura.hidden = true;
     telaPainel.hidden = true;
     telaLogin.hidden = false;
-    acoesTopo.hidden = true;
     campoSenha.value = "";
     erroLoginVisivel("");
     campoSenha.focus();
@@ -215,9 +274,9 @@
   function mostrarPainel() {
     document.body.classList.remove("sem-rolagem");
     topo.classList.remove("topo--login");
+    abertura.hidden = true;
     telaLogin.hidden = true;
     telaPainel.hidden = false;
-    acoesTopo.hidden = false;
     erroLoginVisivel("");
     renderizar();
     iniciarAtualizacao();
@@ -226,8 +285,8 @@
   function iniciarAtualizacao() {
     pararAtualizacao();
     atualizacaoTimer = setInterval(function () {
-      if (document.visibilityState === "visible" && state.senha && !state.carregando) {
-        carregar(state.senha, true);
+      if (document.visibilityState === "visible" && state.token && !state.carregando) {
+        carregar(true);
       }
     }, INTERVALO_ATUALIZACAO);
   }
@@ -245,7 +304,7 @@
       campoSenha.focus();
       return;
     }
-    carregar(senha, false);
+    entrar(senha);
   });
 
   botaoMostrar.addEventListener("click", function () {
@@ -256,16 +315,6 @@
     $(".ico-olho", botaoMostrar).hidden = !visivel;
     $(".ico-olho-cortado", botaoMostrar).hidden = visivel;
     campoSenha.focus();
-  });
-
-  botaoSair.addEventListener("click", function () {
-    encerrarSessao();
-    mostrarLogin();
-    mostrarAviso("Sessão encerrada.", "info");
-  });
-
-  botaoAtualizar.addEventListener("click", function () {
-    if (state.senha) carregar(state.senha, true);
   });
 
   /* --------------------------------------------------------------- filtros */
@@ -292,6 +341,7 @@
     var dados = state.dados;
     if (!dados) return;
 
+    var rolagem = chipsEl.scrollLeft;
     chipsEl.textContent = "";
 
     function chip(valor, rotulo, quantidade) {
@@ -319,6 +369,8 @@
     dados.horarios.forEach(function (h) {
       chip(h.hora, h.hora, Number(h.ocupadas) || 0);
     });
+
+    chipsEl.scrollLeft = rolagem;
   }
 
   function renderizarGrupos() {
@@ -399,6 +451,16 @@
     renderizarGrupos();
   }
 
+  /** Não destrói o foco nem a rolagem de quem está usando a tela. */
+  function renderizarComFoco() {
+    var focoNaLista =
+      chipsEl.contains(document.activeElement) ||
+      gruposEl.contains(document.activeElement);
+
+    if (focoNaLista) return;
+    renderizar();
+  }
+
   buscaInput.addEventListener("input", function () {
     clearTimeout(buscaTimer);
     buscaTimer = setTimeout(function () {
@@ -416,73 +478,28 @@
     buscaInput.focus();
   });
 
-  /* ---------------------------------------------------------------- export */
-
-  function celulaCsv(valor) {
-    var texto = String(valor == null ? "" : valor);
-    if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
-    return '"' + texto.replace(/"/g, '""') + '"';
-  }
-
-  botaoExportar.addEventListener("click", function () {
-    var lista = inscricoesFiltradas();
-    if (!lista.length) {
-      mostrarAviso("Nada para exportar.", "erro");
-      return;
-    }
-
-    var linhas = [
-      ["Horário", "Nome", "CPF", "E-mail", "Celular", "Inscrito em", "Protocolo"]
-    ];
-
-    lista.forEach(function (item) {
-      linhas.push([
-        item.horario,
-        item.nome,
-        item.cpf,
-        item.email,
-        formatarCelular(item.celular),
-        formatarDataHora(item.criado_em),
-        protocoloCurto(item.protocolo)
-      ]);
-    });
-
-    var csv = "\uFEFF" + linhas.map(function (linha) {
-      return linha.map(celulaCsv).join(";");
-    }).join("\r\n");
-
-    var blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement("a");
-    var data = (state.dados.evento && state.dados.evento.data) || "bazar";
-    link.href = url;
-    link.download = "inscricoes-bazar-" + data + ".csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    setTimeout(function () {
-      URL.revokeObjectURL(url);
-    }, 2000);
-
-    mostrarAviso("CSV baixado.", "sucesso");
-  });
-
   /* ------------------------------------------------------------ ciclo de vida */
 
   document.addEventListener("visibilitychange", function () {
     if (
       document.visibilityState === "visible" &&
-      state.senha &&
+      state.token &&
       Date.now() - state.ultimaCarga > 8000
     ) {
-      carregar(state.senha, true);
+      carregar(true);
     }
   });
 
-  var senhaSalva = sessionStorage.getItem(CHAVE_SESSAO);
-  if (senhaSalva) {
-    carregar(senhaSalva, true);
+  var tokenSalvo = lerToken();
+  try {
+    sessionStorage.removeItem("bazar_admin_senha");
+  } catch (erro) {
+    /* limpeza de versões antigas */
+  }
+  if (tokenSalvo) {
+    state.token = tokenSalvo;
+    carregar(true);
   } else {
-    campoSenha.focus();
+    mostrarLogin();
   }
 })();

@@ -24,7 +24,7 @@
   --preto: #000;
   --vermelho: #e62f2f;
   --texto-medio: rgba(0, 0, 0, 0.8);
-  --texto-suave: rgba(0, 0, 0, 0.5);
+  --texto-suave: rgba(0, 0, 0, 0.62);
   --linha: rgba(0, 0, 0, 0.2);
   --linha-forte: rgba(0, 0, 0, 0.3);
   --branco-80: rgba(255, 255, 255, 0.8);
@@ -138,6 +138,22 @@ svg {
   height: auto;
   object-fit: contain;
   animation: capa-entrar 1.1s var(--ease) both;
+}
+
+.capa__link {
+  display: block;
+  width: 100%;
+  cursor: pointer;
+  transition: opacity 0.18s var(--ease);
+}
+
+.capa__link:hover {
+  opacity: 0.97;
+}
+
+.capa__link:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.9);
+  outline-offset: -3px;
 }
 
 @keyframes capa-entrar {
@@ -570,7 +586,8 @@ svg {
   color: var(--texto-medio);
 }
 
-.campo[data-erro="true"] .marcador__caixa {
+.campo[data-erro="true"] .marcador__caixa,
+.marcador[data-erro="true"] .marcador__caixa {
   border-color: #d92d20;
 }
 
@@ -649,7 +666,7 @@ svg {
   margin: 14px 0 0;
   font-size: 11.5px;
   line-height: 1.45;
-  color: rgba(0, 0, 0, 0.42);
+  color: rgba(0, 0, 0, 0.56);
 }
 
 .nota-seguranca svg {
@@ -674,16 +691,17 @@ svg {
   fill: #000;
 }
 
-.rodape__equipe {
-  margin-top: 8px;
-  font-size: 11px;
-  color: rgba(0, 0, 0, 0.35);
-  text-decoration: none;
+.rodape__contato {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--texto-suave);
+  text-align: center;
 }
 
-.rodape__equipe:hover {
+.rodape__contato a {
   color: var(--texto-medio);
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* ------------------------------------------------------------------ sucesso */
@@ -1064,6 +1082,12 @@ svg {
 
   .sucesso__aviso {
     font-size: 13px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cartao {
+    zoom: 0.8;
   }
 }
 

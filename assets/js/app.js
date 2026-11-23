@@ -81,7 +81,11 @@
   }
 
   function formatarCelular(valor) {
-    var d = somenteDigitos(valor).slice(0, 11);
+    var d = somenteDigitos(valor);
+    if ((d.length === 12 || d.length === 13) && d.slice(0, 2) === "55") {
+      d = d.slice(2);
+    }
+    d = d.slice(0, 11);
     if (d.length <= 2) return d;
     var ddd = d.slice(0, 2);
     var resto = d.slice(2);
@@ -552,6 +556,9 @@
         selecaoHorario.botao.disabled = true;
         selecaoHorario.definir("Agendamento encerrado", "");
         botaoConfirmar.disabled = true;
+      } else if (sucesso.hidden) {
+        form.hidden = false;
+        botaoConfirmar.disabled = false;
       }
     } catch (erro) {
       selecaoHorario.definir("Não foi possível carregar", "");
@@ -617,11 +624,17 @@
 
     definirCarregando(true);
 
+    var controle = new AbortController();
+    var limite = setTimeout(function () {
+      controle.abort();
+    }, 12000);
+
     try {
       var resposta = await fetch(API_BASE + "/agendar", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(montarPayload())
+        body: JSON.stringify(montarPayload()),
+        signal: controle.signal
       });
 
       var dados = null;
@@ -704,6 +717,15 @@
     if (codigo === "TERMOS_OBRIGATORIOS") {
       validarTermos(false);
       $("#termos").focus();
+      return;
+    }
+
+    if (codigo === "INSCRICOES_ENCERRADAS") {
+      if (state.evento) state.evento.aberto = false;
+      form.hidden = true;
+      var avisoFechado = $("#encerrado");
+      if (avisoFechado) avisoFechado.hidden = false;
+      mostrarAviso(mensagem, "erro");
       return;
     }
 
@@ -956,7 +978,7 @@
   /* ------------------------------------------------------------- ciclo de vida */
 
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "visible" && form.hidden === false) {
+    if (document.visibilityState === "visible" && sucesso.hidden) {
       carregarHorarios(false);
     }
   });
