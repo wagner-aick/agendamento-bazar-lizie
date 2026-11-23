@@ -179,6 +179,118 @@ svg {
   border-top: 2px solid var(--linha-forte);
 }
 
+/* --------------------------------------------------------------- transcrição */
+.transcricao {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .transcricao {
+    display: block;
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--linha);
+    border-radius: 10px;
+  }
+
+  .transcricao h2 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 700;
+    color: var(--tinta);
+  }
+
+  .transcricao__data {
+    margin: 6px 0 0;
+    font-size: 24px;
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--tinta);
+  }
+
+  .transcricao__data span {
+    display: block;
+    margin-top: 4px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #a8512c;
+  }
+
+  .transcricao__linhas {
+    display: grid;
+    gap: 4px;
+    margin: 11px 0 0;
+  }
+
+  .transcricao__linhas div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .transcricao__linhas dt {
+    color: var(--texto-suave);
+    font-weight: 500;
+  }
+
+  .transcricao__linhas dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--texto-medio);
+    text-align: right;
+  }
+
+  .transcricao__pagamento {
+    margin: 12px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--texto-suave);
+  }
+
+  .transcricao__pagamento strong {
+    color: var(--texto-medio);
+    font-weight: 700;
+  }
+
+  .transcricao__cta {
+    margin: 12px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #a8512c;
+  }
+
+  .transcricao__endereco {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .transcricao__endereco a {
+    color: var(--texto-medio);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .transcricao__nota {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 11px;
+    line-height: 1.45;
+    color: var(--texto-suave);
+  }
+}
+
 /* --------------------------------------------------------------- encerrado */
 .encerrado {
   display: flex;
