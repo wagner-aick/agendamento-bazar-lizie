@@ -39,6 +39,10 @@ const ERROS: Record<string, { status: number; mensagem: string }> = {
     status: 401,
     mensagem: "Sessão expirada. Entre novamente.",
   },
+  NAO_ENCONTRADO: {
+    status: 404,
+    mensagem: "Essa inscrição não existe mais.",
+  },
   MUITAS_TENTATIVAS: {
     status: 429,
     mensagem: "Muitas tentativas. Aguarde 10 minutos e tente de novo.",
@@ -181,6 +185,79 @@ Deno.serve(async (req) => {
       }
 
       return json({ ok: true, dados: resultado.dados }, 200, req);
+    }
+
+    if (req.method === "POST" && rota === "excluir") {
+      const corpo = await corpoJson(req);
+      if (!corpo) return falha("REQUISICAO_INVALIDA", req);
+
+      const token = typeof corpo.token === "string" ? corpo.token : "";
+      if (!/^[a-f0-9]{64}$/.test(token)) {
+        return falha("SESSAO_EXPIRADA", req);
+      }
+
+      const id = typeof corpo.id === "string" ? corpo.id : "";
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+        return falha("REQUISICAO_INVALIDA", req);
+      }
+
+      const resultado = await rpc("bazar_admin_excluir", {
+        p_token: token,
+        p_id: id,
+      }) as { ok?: boolean; erro?: string; removidos?: number };
+
+      if (!resultado || resultado.ok !== true) {
+        return falha(resultado?.erro ?? "ERRO_INTERNO", req);
+      }
+
+      return json({ ok: true, removidos: resultado.removidos ?? 1 }, 200, req);
+    }
+
+    if (req.method === "POST" && rota === "presencas") {
+      const corpo = await corpoJson(req);
+      if (!corpo) return falha("REQUISICAO_INVALIDA", req);
+
+      const token = typeof corpo.token === "string" ? corpo.token : "";
+      if (!/^[a-f0-9]{64}$/.test(token)) {
+        return falha("SESSAO_EXPIRADA", req);
+      }
+
+      const resultado = await rpc("bazar_admin_presencas", {
+        p_token: token,
+      }) as { ok?: boolean; erro?: string; presencas?: unknown };
+
+      if (!resultado || resultado.ok !== true) {
+        return falha(resultado?.erro ?? "ERRO_INTERNO", req);
+      }
+
+      return json({ ok: true, presencas: resultado.presencas ?? [] }, 200, req);
+    }
+
+    if (req.method === "POST" && rota === "presenca") {
+      const corpo = await corpoJson(req);
+      if (!corpo) return falha("REQUISICAO_INVALIDA", req);
+
+      const token = typeof corpo.token === "string" ? corpo.token : "";
+      if (!/^[a-f0-9]{64}$/.test(token)) {
+        return falha("SESSAO_EXPIRADA", req);
+      }
+
+      const id = typeof corpo.id === "string" ? corpo.id : "";
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) {
+        return falha("REQUISICAO_INVALIDA", req);
+      }
+
+      const resultado = await rpc("bazar_admin_presenca", {
+        p_token: token,
+        p_id: id,
+        p_chegou: corpo.chegou === true,
+      }) as { ok?: boolean; erro?: string; chegou_em?: string | null };
+
+      if (!resultado || resultado.ok !== true) {
+        return falha(resultado?.erro ?? "ERRO_INTERNO", req);
+      }
+
+      return json({ ok: true, chegou_em: resultado.chegou_em ?? null }, 200, req);
     }
 
     return json({ ok: false, erro: "ROTA_NAO_ENCONTRADA" }, 404, req);

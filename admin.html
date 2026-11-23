@@ -13,34 +13,12 @@
 
   <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/admin.css?v=5">
-  <script src="assets/js/admin.js?v=5" defer></script>
+  <link rel="stylesheet" href="assets/css/admin.css?v=7">
+  <script src="assets/js/admin.js?v=7" defer></script>
 </head>
 <body class="sem-rolagem">
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-
-  <header class="topo topo--login" id="topo">
-    <div class="topo__interno">
-      <a class="topo__marca" href="index.html" aria-label="Voltar para a página de agendamento">
-        <svg viewBox="0 0 55.5 22.5" role="img" aria-hidden="true" focusable="false">
-          <path d="M2.01232 20.5245H6.41812V22.25H0.25V0.25H2.01232V20.5245Z"/>
-          <path d="M15.8906 22.25H14.1283V0.25H15.8906V22.25Z"/>
-          <path d="M25.8191 20.5245H31.9481V22.25H23.3934L30.1217 1.97549H24.6785V0.25H32.5472L25.8191 20.5245Z"/>
-          <path d="M41.8123 22.25H40.05V0.25H41.8123V22.25Z"/>
-          <path d="M55.25 1.97549H51.2848V10.3873H53.708V12.1127H51.2848V20.5245H55.25V22.25H49.5225V0.25H55.25V1.97549Z"/>
-        </svg>
-      </a>
-
-      <span class="topo__divisor" aria-hidden="true"></span>
-
-      <div class="topo__titulo">
-        <strong>Painel do Bazar</strong>
-        <span>Bazar de Fábrica Lizie</span>
-      </div>
-    </div>
-  </header>
-
-  <main id="conteudo" tabindex="-1">
+<main id="conteudo" tabindex="-1">
     <!-- ============================= ABERTURA ============================= -->
     <div class="abertura" id="abertura" role="status" aria-label="Carregando painel">
       <svg class="giro" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -139,6 +117,43 @@
     <span>Lizie · Painel interno</span>
     <a href="index.html">Página de agendamento</a>
   </footer>
+
+  <dialog class="detalhe" id="detalhe" aria-labelledby="detalhe-nome">
+    <div class="detalhe__topo">
+      <div>
+        <h2 id="detalhe-nome"></h2>
+        <p class="detalhe__meta" id="detalhe-meta"></p>
+      </div>
+      <button type="button" class="detalhe__fechar" id="detalhe-fechar" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <p class="detalhe__hora" id="detalhe-hora"></p>
+
+    <button type="button" class="presenca" id="presenca" aria-pressed="false">
+      <span class="presenca__icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M5 12.5 9.5 17 19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span class="presenca__texto" id="presenca-texto">Marcar chegada</span>
+    </button>
+
+    <div class="detalhe__rodape" id="detalhe-rodape">
+      <button type="button" class="detalhe__excluir" id="excluir">Excluir inscrição</button>
+    </div>
+
+    <div class="detalhe__confirmar" id="painel-confirmar-exclusao" hidden>
+      <p>Excluir definitivamente a inscrição de <strong id="confirmar-nome"></strong>? Essa ação não pode ser desfeita.</p>
+      <div class="detalhe__acoes">
+        <button type="button" class="botao-secundario" id="cancelar-exclusao">Cancelar</button>
+        <button type="button" class="botao-perigo" id="excluir-confirmar">Excluir</button>
+      </div>
+    </div>
+  </dialog>
 
   <div class="aviso" id="aviso" role="status" aria-live="polite" hidden></div>
 

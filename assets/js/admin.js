@@ -1,6 +1,6 @@
 /* =============================================================================
    Bazar de Fábrica Lizie — Painel da equipe
-   Minimalista: lista por horário, busca, filtro e atualização automática.
+   Lista por horário, chegada e exclusão da inscrição.
    O navegador guarda um token de 12h, nunca a senha.
    ============================================================================= */
 
@@ -17,6 +17,7 @@
     dados: null,
     busca: "",
     horario: "",
+    selecionado: null,
     carregando: false,
     ultimaCarga: 0
   };
@@ -58,12 +59,18 @@
     return partes[2] + "." + partes[1];
   }
 
+  function horaCurta(iso) {
+    if (!iso) return "";
+    var data = new Date(iso);
+    if (isNaN(data.getTime())) return "";
+    return data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+
   /* ------------------------------------------------------------- elementos */
 
   var telaLogin = $("#tela-login");
   var telaPainel = $("#tela-painel");
   var abertura = $("#abertura");
-  var topo = $("#topo");
   var formLogin = $("#form-login");
   var campoSenha = $("#senha");
   var controleSenha = $("#controle-senha");
@@ -78,6 +85,20 @@
   var vazioTitulo = $("#vazio-titulo");
   var botaoLimpar = $("#limpar-filtros");
   var avisoEl = $("#aviso");
+
+  var detalhe = $("#detalhe");
+  var detalheNome = $("#detalhe-nome");
+  var detalheMeta = $("#detalhe-meta");
+  var detalheHora = $("#detalhe-hora");
+  var detalheFechar = $("#detalhe-fechar");
+  var presencaBtn = $("#presenca");
+  var presencaTexto = $("#presenca-texto");
+  var detalheRodape = $("#detalhe-rodape");
+  var botaoExcluir = $("#excluir");
+  var painelConfirmar = $("#painel-confirmar-exclusao");
+  var confirmarNome = $("#confirmar-nome");
+  var botaoCancelarExclusao = $("#cancelar-exclusao");
+  var botaoConfirmarExclusao = $("#excluir-confirmar");
 
   var avisoTimer = null;
   var buscaTimer = null;
@@ -210,6 +231,24 @@
     }
   }
 
+  async function carregarPresencas() {
+    if (!state.dados) return;
+    try {
+      var resultado = await requisitar("/presencas", { token: state.token });
+      if (!resultado.resposta.ok || !resultado.dados || resultado.dados.ok !== true) return;
+
+      var mapa = {};
+      (resultado.dados.presencas || []).forEach(function (p) {
+        mapa[p.id] = p.chegou_em;
+      });
+      state.dados.inscricoes.forEach(function (item) {
+        item.chegou_em = mapa[item.protocolo] || null;
+      });
+    } catch (erro) {
+      /* silencioso: a lista continua utilizável sem o status */
+    }
+  }
+
   async function carregar(silencioso) {
     if (state.carregando || !state.token) return;
     definirCarregando(true);
@@ -230,12 +269,14 @@
 
       state.dados = dados.dados;
       state.ultimaCarga = Date.now();
+      await carregarPresencas();
 
       if (telaPainel.hidden) {
         mostrarPainel();
+      } else if (!silencioso) {
+        renderizar();
       } else {
-        if (!silencioso) renderizar();
-        else renderizarComFoco();
+        renderizarComFoco();
       }
     } catch (erro) {
       var texto = erro && erro.name === "AbortError"
@@ -257,12 +298,13 @@
     apagarToken();
     state.token = "";
     state.dados = null;
+    state.selecionado = null;
+    if (detalhe.open) detalhe.close();
   }
 
   function mostrarLogin() {
     pararAtualizacao();
     document.body.classList.add("sem-rolagem");
-    topo.classList.add("topo--login");
     abertura.hidden = true;
     telaPainel.hidden = true;
     telaLogin.hidden = false;
@@ -273,7 +315,6 @@
 
   function mostrarPainel() {
     document.body.classList.remove("sem-rolagem");
-    topo.classList.remove("topo--login");
     abertura.hidden = true;
     telaLogin.hidden = true;
     telaPainel.hidden = false;
@@ -328,7 +369,6 @@
     return dados.inscricoes.filter(function (item) {
       if (state.horario && item.horario !== state.horario) return false;
       if (!termo) return true;
-
       if (normalizar(item.nome).indexOf(termo) !== -1) return true;
       if (digitos && somenteDigitos(item.cpf + " " + item.celular).indexOf(digitos) !== -1) return true;
       return false;
@@ -373,6 +413,27 @@
     chipsEl.scrollLeft = rolagem;
   }
 
+  function abrirDetalhe(item) {
+    state.selecionado = item;
+    detalheNome.textContent = item.nome;
+    detalheMeta.textContent = item.cpf + " · " + formatarCelular(item.celular);
+    detalheHora.textContent = "Horário: " + item.horario;
+    detalheRodape.hidden = false;
+    painelConfirmar.hidden = true;
+    atualizarPresenca();
+    detalhe.showModal();
+    detalheFechar.focus();
+  }
+
+  function atualizarPresenca() {
+    var item = state.selecionado;
+    var chegou = Boolean(item && item.chegou_em);
+    presencaBtn.setAttribute("aria-pressed", chegou ? "true" : "false");
+    presencaTexto.textContent = chegou
+      ? "Chegou às " + horaCurta(item.chegou_em)
+      : "Marcar chegada";
+  }
+
   function renderizarGrupos() {
     var dados = state.dados;
     if (!dados) return;
@@ -391,28 +452,37 @@
       if (!pessoas || !pessoas.length) return;
 
       var grupo = criar("section", "grupo");
-      var topoGrupo = criar("header", "grupo__topo");
-      topoGrupo.appendChild(criar("h2", "", h.hora));
-      topoGrupo.appendChild(criar("span", "", pessoas.length + " de " + h.vagas_max));
-      grupo.appendChild(topoGrupo);
+      var topo = criar("header", "grupo__topo");
+      topo.appendChild(criar("h2", "", h.hora));
+      topo.appendChild(criar("span", "", h.ocupadas + " de " + h.vagas_max));
+      grupo.appendChild(topo);
 
       var ul = criar("ul", "pessoas");
       ul.setAttribute("aria-label", "Inscritos às " + h.hora);
 
       pessoas.forEach(function (item) {
-        var li = criar("li", "pessoa");
-        li.appendChild(criar("strong", "pessoa__nome", item.nome));
+        var li = document.createElement("li");
+
+        var botao = criar("button", "pessoa pessoa--abrir");
+        botao.type = "button";
+        botao.setAttribute("aria-label", "Abrir " + item.nome + ", " + item.horario);
+        botao.appendChild(criar("strong", "pessoa__nome", item.nome));
 
         var meta = criar("span", "pessoa__meta");
         meta.appendChild(criar("span", "", item.cpf));
+        meta.appendChild(criar("span", "", formatarCelular(item.celular)));
+        botao.appendChild(meta);
 
-        var tel = document.createElement("a");
-        tel.className = "pessoa__tel";
-        tel.href = "tel:+55" + somenteDigitos(item.celular);
-        tel.textContent = formatarCelular(item.celular);
-        meta.appendChild(tel);
+        if (item.chegou_em) {
+          var status = criar("span", "pessoa__status", "Chegou");
+          botao.appendChild(status);
+        }
 
-        li.appendChild(meta);
+        botao.addEventListener("click", function () {
+          abrirDetalhe(item);
+        });
+
+        li.appendChild(botao);
         ul.appendChild(li);
       });
 
@@ -443,21 +513,25 @@
 
     var evento = state.dados.evento || {};
     var total = Number(state.dados.total) || 0;
+    var chegaram = state.dados.inscricoes.filter(function (i) {
+      return Boolean(i.chegou_em);
+    }).length;
+
     subtitulo.textContent =
       (evento.data ? dataCurta(evento.data) + " · " : "") +
-      (total === 0 ? "nenhum inscrito" : total + (total === 1 ? " inscrito" : " inscritos"));
+      (total === 0 ? "nenhum inscrito" : total + (total === 1 ? " inscrito" : " inscritos")) +
+      (chegaram ? " · " + chegaram + (chegaram === 1 ? " chegou" : " chegaram") : "");
 
     renderizarChips();
     renderizarGrupos();
   }
 
-  /** Não destrói o foco nem a rolagem de quem está usando a tela. */
   function renderizarComFoco() {
     var focoNaLista =
       chipsEl.contains(document.activeElement) ||
       gruposEl.contains(document.activeElement);
 
-    if (focoNaLista) return;
+    if (focoNaLista || detalhe.open) return;
     renderizar();
   }
 
@@ -476,6 +550,115 @@
     renderizarChips();
     renderizarGrupos();
     buscaInput.focus();
+  });
+
+  /* ------------------------------------------------------- chegada e exclusão */
+
+  detalheFechar.addEventListener("click", function () {
+    detalhe.close();
+  });
+
+  detalhe.addEventListener("click", function (evento) {
+    if (evento.target === detalhe) detalhe.close();
+  });
+
+  detalhe.addEventListener("close", function () {
+    state.selecionado = null;
+  });
+
+  presencaBtn.addEventListener("click", async function () {
+    var item = state.selecionado;
+    if (!item || presencaBtn.disabled) return;
+
+    var novo = !item.chegou_em;
+    presencaBtn.disabled = true;
+
+    try {
+      var resultado = await requisitar("/presenca", {
+        token: state.token,
+        id: item.protocolo,
+        chegou: novo
+      });
+
+      if (!resultado.resposta.ok || !resultado.dados || resultado.dados.ok !== true) {
+        if (resultado.resposta.status === 401) {
+          encerrarSessao();
+          mostrarLogin();
+          erroLoginVisivel("Sessão expirada. Entre novamente.");
+          return;
+        }
+        throw new Error(
+          resultado.dados && resultado.dados.mensagem
+            ? resultado.dados.mensagem
+            : "Não foi possível registrar a chegada."
+        );
+      }
+
+      item.chegou_em = resultado.dados.chegou_em || null;
+      atualizarPresenca();
+      renderizar();
+      mostrarAviso(novo ? "Chegada registrada." : "Chegada desfeita.", "sucesso");
+    } catch (erro) {
+      var texto = erro && erro.name === "AbortError"
+        ? "Conexão lenta. Tente novamente."
+        : (erro && erro.message ? erro.message : "Não foi possível registrar a chegada.");
+      mostrarAviso(texto, "erro");
+    } finally {
+      presencaBtn.disabled = false;
+    }
+  });
+
+  botaoExcluir.addEventListener("click", function () {
+    if (!state.selecionado) return;
+    confirmarNome.textContent = state.selecionado.nome;
+    detalheRodape.hidden = true;
+    painelConfirmar.hidden = false;
+    botaoConfirmarExclusao.focus();
+  });
+
+  botaoCancelarExclusao.addEventListener("click", function () {
+    painelConfirmar.hidden = true;
+    detalheRodape.hidden = false;
+    botaoExcluir.focus();
+  });
+
+  botaoConfirmarExclusao.addEventListener("click", async function () {
+    if (!state.selecionado || botaoConfirmarExclusao.disabled) return;
+
+    botaoConfirmarExclusao.disabled = true;
+    var nome = state.selecionado.nome;
+
+    try {
+      var resultado = await requisitar("/excluir", {
+        token: state.token,
+        id: state.selecionado.protocolo
+      });
+
+      if (!resultado.resposta.ok || !resultado.dados || resultado.dados.ok !== true) {
+        if (resultado.resposta.status === 401) {
+          encerrarSessao();
+          mostrarLogin();
+          erroLoginVisivel("Sessão expirada. Entre novamente.");
+          return;
+        }
+        throw new Error(
+          resultado.dados && resultado.dados.mensagem
+            ? resultado.dados.mensagem
+            : "Não foi possível excluir a inscrição."
+        );
+      }
+
+      detalhe.close();
+      mostrarAviso("Inscrição de " + nome + " excluída.", "sucesso");
+      await carregar(true);
+    } catch (erro) {
+      var texto = erro && erro.name === "AbortError"
+        ? "Conexão lenta. Tente novamente."
+        : (erro && erro.message ? erro.message : "Não foi possível excluir.");
+      mostrarAviso(texto, "erro");
+    } finally {
+      botaoConfirmarExclusao.disabled = false;
+    }
   });
 
   /* ------------------------------------------------------------ ciclo de vida */
