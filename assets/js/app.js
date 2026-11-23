@@ -788,7 +788,8 @@
     sucesso.setAttribute("tabindex", "-1");
     sucesso.focus({ preventScroll: true });
 
-    cartao.scrollIntoView({ behavior: "smooth", block: "start" });
+    var reduzir = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    sucesso.scrollIntoView({ behavior: reduzir ? "auto" : "smooth", block: "start" });
 
     // Atualiza as vagas em segundo plano.
     setTimeout(function () {

@@ -824,6 +824,7 @@ svg {
   align-items: center;
   padding: 26px 0 0;
   text-align: center;
+  scroll-margin-top: 24px;
   animation: sucesso-entrar 0.5s var(--ease) both;
 }
 
