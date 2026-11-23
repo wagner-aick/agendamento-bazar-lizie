@@ -1132,6 +1132,29 @@ main {
   .pessoa__status {
     justify-self: end;
   }
+
+  .detalhe[open] {
+    animation: detalhe-morfar 0.24s var(--ease);
+  }
+
+  .detalhe[open]::backdrop {
+    animation: fundo-surgir 0.2s ease;
+  }
+}
+
+@keyframes detalhe-morfar {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes detalhe-subir {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes fundo-surgir {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @media (max-width: 559px) {
@@ -1151,6 +1174,14 @@ main {
     margin: 0 auto 14px;
     border-radius: 999px;
     background: rgba(0, 0, 0, 0.22);
+  }
+
+  .detalhe[open] {
+    animation: detalhe-subir 0.26s var(--ease);
+  }
+
+  .detalhe[open]::backdrop {
+    animation: fundo-surgir 0.2s ease;
   }
 }
 
