@@ -445,7 +445,10 @@
         detalhe.style.height = origem.height + "px";
         detalhe.style.overflow = "hidden";
         detalhe.style.borderRadius = "10px";
-        detalhe.style.opacity = "0.6";
+        detalhe.style.opacity = "1";
+
+        var conteudo = detalhe.querySelector(".detalhe__conteudo");
+        if (conteudo) conteudo.style.opacity = "0";
 
         var animacao = detalhe.animate(
           [
@@ -480,6 +483,15 @@
           detalhe.style.overflow = "";
           detalhe.style.borderRadius = "";
           detalhe.style.opacity = "";
+
+          if (conteudo) {
+            conteudo.animate(
+              [{ opacity: 0 }, { opacity: 1 }],
+              { duration: 160, easing: "ease-out" }
+            ).finished.finally(function () {
+              conteudo.style.opacity = "";
+            });
+          }
         });
       }
     }

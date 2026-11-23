@@ -14,7 +14,7 @@
   <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="assets/css/admin.css?v=14">
-  <script src="assets/js/admin.js?v=10" defer></script>
+  <script src="assets/js/admin.js?v=11" defer></script>
 </head>
 <body class="sem-rolagem">
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -120,6 +120,7 @@
   <dialog class="detalhe" id="detalhe" aria-labelledby="detalhe-nome">
     <div class="detalhe__alca" aria-hidden="true"></div>
 
+    <div class="detalhe__conteudo" id="detalhe-conteudo">
     <div class="detalhe__topo">
       <div>
         <h2 id="detalhe-nome"></h2>
@@ -153,6 +154,7 @@
         <button type="button" class="botao-secundario" id="cancelar-exclusao">Cancelar</button>
         <button type="button" class="botao-perigo" id="excluir-confirmar">Excluir</button>
       </div>
+    </div>
     </div>
   </dialog>
 
