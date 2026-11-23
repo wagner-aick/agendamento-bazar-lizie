@@ -160,10 +160,15 @@ a {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: hidden;
   line-height: 1.25;
 }
 
 .topo__titulo strong {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0;
@@ -171,6 +176,10 @@ a {
 }
 
 .topo__titulo span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 10px;
   font-weight: 700;
   color: rgba(0, 0, 0, 0.5);
@@ -670,6 +679,7 @@ main {
 }
 
 .pessoa__tel {
+  padding: 4px 0;
   text-decoration: none;
   color: inherit;
 }

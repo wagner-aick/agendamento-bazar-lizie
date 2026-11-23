@@ -105,3 +105,28 @@ Ambos os `fetch` principais ganharam `AbortController` de 12 s. No formulário, 
 - CSP sem `unsafe-inline`, `base-uri 'none'`, `object-src 'none'`, `connect-src` restrito.
 - Workflow com permissões mínimas e artefato sem `supabase/`, `README.md` ou `.git`.
 - Honeypot, validação dupla (cliente + banco), encerramento por fuso `America/Sao_Paulo`.
+
+## 6. Verificação final (2026-11-23)
+
+| Verificação | Resultado observado |
+|---|---|
+| Security advisors do Supabase | Apenas `rls_enabled_no_policy` (INFO, esperado); nenhum WARN |
+| Rate limit público com `X-Forwarded-For` forjado | 8× `422` e a 9ª `429 MUITAS_TENTATIVAS` |
+| Rate limit do painel com XFF forjado | 9× `401` e a 10ª `429 MUITAS_TENTATIVAS` |
+| CORS com `Origin: https://evil.example` | `Access-Control-Allow-Origin: https://wagner-aick.github.io` |
+| Login do painel | `200`, token de 64 hex; `/dados` com o token `200` |
+| `sessionStorage` no painel live | token de 64, `bazar_admin_senha` = `null` |
+| Painel live | 0 botões de CSV/atualizar/sair; lista por horário |
+| Página live em 1440px | cartão de 997px (`zoom: 0.8`) |
+| Link da capa | Google Maps, `target="_blank"` |
+| Contato no rodapé | `bi@lizie.com.br` |
+| Console do navegador | 0 erros |
+| Políticas públicas legadas | 0 |
+
+## 7. Conclusão
+
+Os riscos críticos e altos que permitiam abuso automatizado, dump do painel e
+contagem de CPF foram corrigidos e verificados em produção. O que resta exige
+decisão de produto ou infraestrutura: captcha, MFA, retenção/LGPD e headers
+HTTP. Nenhum desses impede o uso atual, mas devem entrar antes de uma campanha
+de maior escala.
