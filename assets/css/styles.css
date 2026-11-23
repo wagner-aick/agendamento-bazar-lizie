@@ -127,6 +127,7 @@ svg {
 .capa {
   position: relative;
   aspect-ratio: 2000 / 1126;
+  border: 1px solid var(--linha);
   border-radius: var(--raio-hero);
   overflow: hidden;
   background: #f4f4f2;
