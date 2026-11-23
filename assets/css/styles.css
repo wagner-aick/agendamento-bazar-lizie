@@ -126,10 +126,10 @@ svg {
 /* ------------------------------------------------------------------- capa */
 .capa {
   position: relative;
-  aspect-ratio: 2000 / 1138;
+  aspect-ratio: 2000 / 1126;
   border-radius: var(--raio-hero);
   overflow: hidden;
-  background: #17181b;
+  background: #f4f4f2;
 }
 
 .capa__imagem {
@@ -152,7 +152,7 @@ svg {
 }
 
 .capa__link:focus-visible {
-  outline: 3px solid rgba(255, 255, 255, 0.9);
+  outline: 3px solid rgba(13, 13, 13, 0.75);
   outline-offset: -3px;
 }
 
