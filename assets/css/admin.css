@@ -1186,7 +1186,7 @@ main {
   }
 
   .detalhe[open] {
-    animation: detalhe-subir 0.26s var(--ease);
+    animation: detalhe-subir 0.2s var(--ease);
   }
 
   .detalhe[open]::backdrop {

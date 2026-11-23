@@ -469,7 +469,7 @@
               opacity: 1
             }
           ],
-          { duration: 260, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" }
+          { duration: 180, easing: "cubic-bezier(0.22, 0.61, 0.36, 1)" }
         );
 
         animacao.finished.finally(function () {
@@ -487,7 +487,7 @@
           if (conteudo) {
             conteudo.animate(
               [{ opacity: 0 }, { opacity: 1 }],
-              { duration: 160, easing: "ease-out" }
+              { duration: 110, easing: "ease-out" }
             ).finished.finally(function () {
               conteudo.style.opacity = "";
             });
@@ -739,12 +739,14 @@
     if (!state.selecionado || botaoConfirmarExclusao.disabled) return;
 
     botaoConfirmarExclusao.disabled = true;
-    var nome = state.selecionado.nome;
+    var removido = state.selecionado;
+    var nome = removido.nome;
+    var id = removido.protocolo;
 
     try {
       var resultado = await requisitar("/excluir", {
         token: state.token,
-        id: state.selecionado.protocolo
+        id: id
       });
 
       if (!resultado.resposta.ok || !resultado.dados || resultado.dados.ok !== true) {
@@ -765,7 +767,7 @@
         try {
           await detalhe.animate(
             [{ opacity: 1 }, { opacity: 0 }],
-            { duration: 140, easing: "ease-in" }
+            { duration: 120, easing: "ease-in" }
           ).finished;
         } catch (erro) {
           /* segue para fechar */
@@ -773,8 +775,24 @@
       }
 
       detalhe.close();
+
+      // Atualiza a tela na hora; o servidor confirma em seguida.
+      if (state.dados) {
+        state.dados.inscricoes = state.dados.inscricoes.filter(function (i) {
+          return i.protocolo !== id;
+        });
+        state.dados.total = Math.max(0, (Number(state.dados.total) || 0) - 1);
+        state.dados.horarios.forEach(function (h) {
+          if (h.hora === removido.horario) {
+            h.ocupadas = Math.max(0, (Number(h.ocupadas) || 0) - 1);
+          }
+        });
+        renderizar();
+      }
+
       mostrarAviso("Inscrição de " + nome + " excluída.", "sucesso");
-      await carregar(true);    } catch (erro) {
+      await carregar(false);
+    } catch (erro) {
       var texto = erro && erro.name === "AbortError"
         ? "Conexão lenta. Tente novamente."
         : (erro && erro.message ? erro.message : "Não foi possível excluir.");
