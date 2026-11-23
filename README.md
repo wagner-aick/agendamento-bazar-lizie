@@ -115,9 +115,14 @@ O painel é uma lista enxuta, pensada para a portaria:
 - busca por nome ou telefone;
 - chips por horário com a contagem;
 - pessoas agrupadas por horário, com nome, CPF mascarado e telefone clicável;
+- clique na pessoa para **marcar a chegada** ou **excluir a inscrição**;
+- o topo mostra quantos já chegaram;
 - atualização automática a cada 15 segundos (e ao voltar para a aba).
 
 Sem KPIs, gráficos, métricas, CSV, botão de atualizar ou de sair.
+
+Chegadas e exclusões ficam registradas em `bazar_admin_auditoria`
+(token, ação, nome, horário e data).
 
 #### Definir ou trocar a senha
 
