@@ -291,22 +291,18 @@
     });
   }
 
-  aplicarMascara($("#cpf"), formatarCpf, contarDigito);
-  $("#celular").addEventListener("input", function () {
-    var input = this;
-    var d = somenteDigitos(input.value);
-    if (d.length > 11 && d.slice(0, 2) === "55") d = d.slice(2);
+  function formatarCelularCampo(valor) {
+    var d = somenteDigitos(valor);
+    if ((d.length === 12 || d.length === 13) && d.slice(0, 2) === "55") d = d.slice(2);
     d = d.slice(0, 11);
-    var local = formatarCelular(d);
-    var novo = local ? "+55 " + local : "";
-    if (novo !== input.value) {
-      input.value = novo;
-      try {
-        input.setSelectionRange(novo.length, novo.length);
-      } catch (erro) {
-        /* alguns navegadores móveis não permitem */
-      }
-    }
+    return formatarCelular(d);
+  }
+
+  aplicarMascara($("#cpf"), formatarCpf, contarDigito);
+  // O "+55" é fixo no layout: aqui só formatamos o número nacional,
+  // preservando o cursor no meio da edição.
+  $("#celular").addEventListener("input", function () {
+    preservarCursor(this, formatarCelularCampo, contarDigito);
   });
   aplicarMascara($("#nome"), formatarNome, contarCaractere);
 

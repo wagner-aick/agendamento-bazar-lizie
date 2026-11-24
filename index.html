@@ -75,8 +75,8 @@
   <link rel="icon" href="assets/img/favicon.svg?v=4" type="image/svg+xml">
   <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/montagu-slab.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/styles.css?v=16">
-  <script src="assets/js/app.js?v=11" defer></script>
+  <link rel="stylesheet" href="assets/css/styles.css?v=17">
+  <script src="assets/js/app.js?v=12" defer></script>
 </head>
 <body>
   <div class="fundo" aria-hidden="true">
@@ -191,8 +191,9 @@
         <div class="campo" data-campo="celular">
           <label class="campo__rotulo" for="celular">Celular (opcional)</label>
           <div class="campo__controle">
+            <span class="campo__prefixo" aria-hidden="true">+55</span>
             <input id="celular" name="celular" type="tel" inputmode="numeric" autocomplete="tel-national"
-                   placeholder="+55 21 90000-0000" maxlength="19" aria-describedby="erro-celular">
+                   placeholder="21 90000-0000" maxlength="20" aria-describedby="erro-celular">
           </div>
           <p class="campo__erro" id="erro-celular" role="alert" hidden></p>
         </div>
