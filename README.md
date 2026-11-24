@@ -232,7 +232,8 @@ Pages a cada push na branch `main`.
 
 - CPF: guardado apenas como HMAC (não reversível sem o pepper do Vault) + máscara.
 - E-mail e celular: usados para organizar o bazar e, se autorizado, para
-  novidades. Não são compartilhados.
+  novidades. Não são compartilhados. O celular é opcional; quando não
+  informado, fica nulo no banco.
 - IP: apenas hash, por 2 dias, para conter abuso.
 - O consentimento de novidades é opcional e registrado separadamente do aceite
   obrigatório sobre defeitos das peças.
