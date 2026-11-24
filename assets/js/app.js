@@ -17,7 +17,8 @@
     origem: "",
     enviando: false,
     agendamento: null,
-    ultimaCarga: 0
+    ultimaCarga: 0,
+    ultimaTentativaAbertura: 0
   };
 
   var $ = function (seletor, raiz) {
@@ -631,7 +632,12 @@
       desligarContagem();
       contagemEl.hidden = true;
       contagemEl.textContent = "";
-      carregarHorarios(true);
+      // Relógio do visitante pode estar adiantado: evita uma rajada de
+      // requisições enquanto o servidor ainda considera fechado.
+      if (Date.now() - state.ultimaTentativaAbertura > 3000) {
+        state.ultimaTentativaAbertura = Date.now();
+        carregarHorarios(true);
+      }
       return;
     }
     contagemEl.textContent = texto;
@@ -943,8 +949,9 @@
       liberarAgendamento();
     }
     carregarHorarios(true);
-    $("#nome").focus();
-    cartao.scrollIntoView({ behavior: "smooth", block: "start" });
+    var reduzirMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $("#nome").focus({ preventScroll: true });
+    form.scrollIntoView({ behavior: reduzirMovimento ? "auto" : "smooth", block: "start" });
   });
 
   /* ------------------------------------------------------------ calendário */

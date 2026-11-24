@@ -350,6 +350,7 @@ svg {
 /* ------------------------------------------------------------- formulário */
 .formulario {
   display: block;
+  scroll-margin-top: 24px;
 }
 
 .grade {
