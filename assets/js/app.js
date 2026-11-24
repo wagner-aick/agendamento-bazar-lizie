@@ -146,6 +146,7 @@
   function celularValido(valor) {
     var d = somenteDigitos(valor);
     if (d.length > 11 && d.slice(0, 2) === "55") d = d.slice(2);
+    if (d.length === 0) return true; // opcional
     if (d.length < 10 || d.length > 11) return false;
     var ddd = Number(d.slice(0, 2));
     return ddd >= 11 && ddd <= 99;
@@ -161,7 +162,7 @@
   var campos = {
     nome: { input: $("#nome"), erro: $("#erro-nome"), valida: nomeValido, mensagem: "Informe o nome e o sobrenome." },
     email: { input: $("#email"), erro: $("#erro-email"), valida: emailValido, mensagem: "Informe um e-mail válido." },
-    celular: { input: $("#celular"), erro: $("#erro-celular"), valida: celularValido, mensagem: "Informe DDD + número." },
+    celular: { input: $("#celular"), erro: $("#erro-celular"), valida: celularValido, mensagem: "Celular incompleto. Informe DDD + número." },
     cpf: { input: $("#cpf"), erro: $("#erro-cpf"), valida: cpfValido, mensagem: "CPF inválido. Confira os números." }
   };
 

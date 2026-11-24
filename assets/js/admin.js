@@ -371,7 +371,7 @@
       if (state.horario && item.horario !== state.horario) return false;
       if (!termo) return true;
       if (normalizar(item.nome).indexOf(termo) !== -1) return true;
-      if (digitos && somenteDigitos(item.cpf + " " + item.celular).indexOf(digitos) !== -1) return true;
+      if (digitos && somenteDigitos(item.cpf + " " + (item.celular || "")).indexOf(digitos) !== -1) return true;
       return false;
     });
   }
@@ -417,7 +417,7 @@
   function abrirDetalhe(item, botao) {
     state.selecionado = item;
     detalheNome.textContent = item.nome;
-    detalheMeta.textContent = item.cpf + " · " + formatarCelular(item.celular);
+    detalheMeta.textContent = item.cpf + (formatarCelular(item.celular) ? " · " + formatarCelular(item.celular) : "");
     detalheHora.textContent = "Horário: " + item.horario;
     detalheRodape.hidden = false;
     painelConfirmar.hidden = true;
@@ -542,7 +542,8 @@
 
         var meta = criar("span", "pessoa__meta");
         meta.appendChild(criar("span", "", item.cpf));
-        meta.appendChild(criar("span", "", formatarCelular(item.celular)));
+        var telefone = formatarCelular(item.celular);
+        if (telefone) meta.appendChild(criar("span", "", telefone));
         botao.appendChild(meta);
 
         if (item.chegou_em) {
